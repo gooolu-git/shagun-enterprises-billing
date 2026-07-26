@@ -106,7 +106,7 @@ import QRCode from 'qrcode'
 const props = defineProps({
   sale: { type: Object, required: true },
   customer: { type: Object, required: true },
-  baseUrl: { type: String, default: 'http://localhost:5173' }
+  baseUrl: { type: String, default: 'http://shagun-enterprises-billing:5173' }
 })
 
 const qrCanvas = ref(null)
