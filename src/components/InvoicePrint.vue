@@ -23,7 +23,7 @@
       <div class="flex justify-between items-start border-b border-neutral-200 pb-6">
         <div>
           <h1 class="text-2xl font-black tracking-tight text-neutral-900 uppercase flex items-center gap-2">
-            Shagun Enterprises & Communication
+            Shagun Enterprises And Communication
           </h1>
           <p class="text-xs text-neutral-500 mt-1 flex items-center gap-1.5">
             Electronics, Appliances & Mobile Store
