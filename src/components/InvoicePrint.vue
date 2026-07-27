@@ -36,6 +36,11 @@
             <font-awesome-icon icon="fa-solid fa-phone" class="text-neutral-400" />
             Contact: 9097625322 , 9110908760
           </p>
+          <!-- Added GSTIN Details -->
+          <p class="text-xs font-semibold text-neutral-700 font-mono mt-1 flex items-center gap-1.5">
+            <font-awesome-icon icon="fa-solid fa-building-columns" class="text-neutral-400" />
+            GSTIN: 10DJTPK6228K1ZW
+          </p>
         </div>
         <div class="text-right">
           <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-neutral-100 text-neutral-800 font-bold text-xs rounded-md uppercase tracking-wider">
@@ -157,7 +162,6 @@
           <font-awesome-icon icon="fa-solid fa-heart" class="text-red-500 text-[10px]" />
           Thank you for shopping with Shagun Enterprises!
           <font-awesome-icon icon="fa-solid fa-heart" class="text-red-500 text-[10px]" />
-
         </p>
         <p class="flex items-center justify-center gap-1">
           This is a computer-generated invoice and carries an authentic digital verification link via the QR code above.
