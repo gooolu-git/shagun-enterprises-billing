@@ -11,6 +11,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/pending-payments',
+      name: 'pending-payments',
+      component: () => import('@/views/PendingPayments.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/analytics',
       name: 'analytics',
       component: () => import('@/components/Analytics.vue'),

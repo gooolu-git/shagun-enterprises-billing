@@ -27,6 +27,17 @@
           >
             Customers
           </router-link>
+
+          <!-- Pending Dues Link -->
+          <router-link
+            to="/pending-payments"
+            class="px-3 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-all flex items-center gap-1.5"
+            active-class="!text-amber-900 !bg-amber-100/70 font-semibold"
+          >
+            <span>Pending Dues</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          </router-link>
+
           <router-link
             to="/analytics"
             class="px-3 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-all"
@@ -44,10 +55,10 @@
             aria-haspopup="true"
             :aria-expanded="isDropdownOpen"
           >
-            <!-- DiceBear SVG Avatar Container -->
+            <!-- DiceBear SVG Avatar Container (v-html) -->
             <div
               v-html="avatarSvg"
-              class="w-9 h-9 rounded-full bg-neutral-100 border border-neutral-200 overflow-hidden [&>svg]:w-full [&>svg]:h-full"
+              class="w-9 h-9 rounded-full bg-neutral-100 border border-neutral-200 overflow-hidden [&>svg]:w-full [&>svg]:h-full shadow-2xs"
             ></div>
           </button>
 
@@ -65,11 +76,17 @@
               class="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-neutral-200/80 shadow-lg py-2 z-50 divide-y divide-neutral-100"
             >
               <!-- User Information Header -->
-              <div class="px-4 py-2.5">
-                <p class="text-xs text-neutral-400 font-medium">Signed in as</p>
-                <p class="text-sm font-semibold text-neutral-900 truncate">
-                  {{ userEmail }}
-                </p>
+              <div class="px-4 py-2.5 flex items-center gap-3">
+                <div
+                  v-html="avatarSvg"
+                  class="w-8 h-8 rounded-full bg-neutral-100 border border-neutral-200 overflow-hidden [&>svg]:w-full [&>svg]:h-full shrink-0"
+                ></div>
+                <div class="truncate">
+                  <p class="text-xs text-neutral-400 font-medium">Signed in as</p>
+                  <p class="text-xs font-semibold text-neutral-900 truncate">
+                    {{ userEmail }}
+                  </p>
+                </div>
               </div>
 
               <!-- Route Links -->
@@ -90,6 +107,20 @@
                   <font-awesome-icon icon="fa-solid fa-users" class="text-neutral-400 w-4" />
                   Customers
                 </router-link>
+
+                <!-- Pending Dues Option -->
+                <router-link
+                  to="/pending-payments"
+                  @click="isDropdownOpen = false"
+                  class="flex items-center justify-between px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
+                >
+                  <div class="flex items-center gap-2.5">
+                    <font-awesome-icon icon="fa-solid fa-hand-holding-dollar" class="text-amber-500 w-4" />
+                    <span>Pending Dues</span>
+                  </div>
+                  <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-full">Ledger</span>
+                </router-link>
+
                 <router-link
                   to="/analytics"
                   @click="isDropdownOpen = false"
@@ -139,20 +170,20 @@ const userEmail = computed(() => {
   return props.session?.user?.email || 'admin@shagun.com'
 })
 
-// Initialize style definition
+// Instantiate DiceBear Style
 const style = new Style(avataaars)
 
-// Dynamic SVG generation for a young adult male avatar
+// Dynamic SVG avatar generated using the user's email as the seed
 const avatarSvg = computed(() => {
   const avatar = new Avatar(style, {
     seed: userEmail.value,
     topProbability: 100,
     topVariant: ['shortFlat', 'shortWaved', 'shortRound', 'shavedSides', 'shortCurly'],
-    hairColor: ['2c1b18', '4a312c', '724133', '000000'], // Natural hair shades
-    facialHairProbability: 20, // Low chance of stubble/beard
+    hairColor: ['2c1b18', '4a312c', '724133', '000000'],
+    facialHairProbability: 20,
     facialHairVariant: ['beardLight'],
     clothesVariant: ['blazerAndShirt', 'shirtCrewNeck', 'collarAndSweater'],
-    clothesColor: ['262626', '3b82f6', '1e293b', '0284c7'], // Modern clean colors
+    clothesColor: ['262626', '3b82f6', '1e293b', '0284c7'],
     eyesVariant: ['default', 'happy', 'side'],
     eyebrowsVariant: ['defaultNatural', 'flatNatural'],
     mouthVariant: ['smile', 'default'],

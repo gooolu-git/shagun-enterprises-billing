@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-neutral-50/50 pb-12 pt-6">
-    <div class="mx-auto max-w-5xl px-6">
+    <div class="mx-auto max-w-5xl px-4 sm:px-6">
 
       <!-- Back Navigation -->
       <div class="mb-6">
@@ -22,7 +22,7 @@
       <div v-else-if="customer" class="space-y-6">
 
         <!-- Profile Header Card -->
-        <div class="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div class="rounded-2xl border border-neutral-200/80 bg-white p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div class="flex items-center gap-5">
             <div
               v-html="avatarSvg"
@@ -81,65 +81,96 @@
           </div>
         </div>
 
-        <!-- Sales Line Items / Ledger Table -->
+        <!-- Sales Line Items / Ledger Table (Compact Layout without Horizontal Scrollbar) -->
         <div class="rounded-2xl border border-neutral-200/80 bg-white overflow-hidden shadow-xs">
-          <div class="px-6 py-4 border-b border-neutral-100 flex items-center justify-between">
+          <div class="px-5 py-4 border-b border-neutral-100 flex items-center justify-between">
             <h2 class="font-bold text-neutral-900 text-base">Sales Ledger & Line Items</h2>
             <span class="text-xs text-neutral-400">{{ customer.sales?.length || 0 }} sales records</span>
           </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead class="border-b border-neutral-100 bg-neutral-50/50 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+          <div class="w-full">
+            <table class="w-full text-left table-fixed">
+              <thead class="border-b border-neutral-100 bg-neutral-50/50 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
                 <tr>
-                  <th scope="col" class="px-6 py-3.5">Item</th>
-                  <th scope="col" class="px-6 py-3.5">Category</th>
-                  <th scope="col" class="px-6 py-3.5">IMEI / Serial</th>
-                  <th scope="col" class="px-6 py-3.5">Date</th>
-                  <th scope="col" class="px-6 py-3.5">Price</th>
-                  <th scope="col" class="px-6 py-3.5">Paid</th>
-                  <th scope="col" class="px-6 py-3.5">Remaining</th>
-                  <th scope="col" class="px-6 py-3.5">Status</th>
-                  <th scope="col" class="px-6 py-3.5 text-right">Invoice</th>
+                  <th scope="col" class="px-3 py-3 w-[22%]">Item</th>
+                  <th scope="col" class="px-2 py-3 w-[12%]">Category</th>
+                  <th scope="col" class="px-2 py-3 w-[14%]">IMEI / Serial</th>
+                  <th scope="col" class="px-2 py-3 w-[11%]">Date</th>
+                  <th scope="col" class="px-2 py-3 w-[10%] text-right">Price</th>
+                  <th scope="col" class="px-2 py-3 w-[10%] text-right">Paid</th>
+                  <th scope="col" class="px-2 py-3 w-[10%] text-right">Remaining</th>
+                  <th scope="col" class="px-2 py-3 w-[11%] text-center">Status</th>
+                  <th scope="col" class="px-3 py-3 w-[10%] text-right">Invoice</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-neutral-100 text-neutral-700">
+              <tbody class="divide-y divide-neutral-100 text-neutral-700 text-xs">
                 <tr
                   v-for="sale in customer.sales"
                   :key="sale.id"
                   class="hover:bg-neutral-50/80 transition-colors"
                 >
-                  <td class="px-6 py-4 font-semibold text-neutral-900">{{ sale.item_name }}</td>
-                  <td class="px-6 py-4 capitalize text-xs text-neutral-500">{{ sale.item_category ? sale.item_category.replace('_', ' ') : 'N/A' }}</td>
-                  <td class="px-6 py-4 font-mono text-xs text-neutral-600">{{ sale.imei_or_serial_no || 'N/A' }}</td>
-                  <td class="px-6 py-4 text-xs text-neutral-500">{{ sale.sale_date }}</td>
-                  <td class="px-6 py-4 font-medium text-neutral-900">₹{{ Number(sale.price).toLocaleString('en-IN') }}</td>
-                  <td class="px-6 py-4 text-emerald-600 font-medium">₹{{ Number(sale.paid_amount).toLocaleString('en-IN') }}</td>
-                  <td class="px-6 py-4 font-semibold text-neutral-900">₹{{ Number(sale.remaining_amount).toLocaleString('en-IN') }}</td>
-                  <td class="px-6 py-4">
+                  <!-- Item -->
+                  <td class="px-3 py-3.5 font-semibold text-neutral-900 truncate" :title="sale.item_name">
+                    {{ sale.item_name }}
+                  </td>
+
+                  <!-- Category -->
+                  <td class="px-2 py-3.5 capitalize text-neutral-500 truncate" :title="sale.item_category">
+                    {{ sale.item_category ? sale.item_category.replace('_', ' ') : 'N/A' }}
+                  </td>
+
+                  <!-- IMEI / Serial -->
+                  <td class="px-2 py-3.5 font-mono text-[11px] text-neutral-600 truncate" :title="sale.imei_or_serial_no">
+                    {{ sale.imei_or_serial_no || 'N/A' }}
+                  </td>
+
+                  <!-- Date -->
+                  <td class="px-2 py-3.5 text-neutral-500 whitespace-nowrap">
+                    {{ sale.sale_date }}
+                  </td>
+
+                  <!-- Price -->
+                  <td class="px-2 py-3.5 font-medium text-neutral-900 text-right whitespace-nowrap">
+                    ₹{{ Number(sale.price).toLocaleString('en-IN') }}
+                  </td>
+
+                  <!-- Paid -->
+                  <td class="px-2 py-3.5 text-emerald-600 font-medium text-right whitespace-nowrap">
+                    ₹{{ Number(sale.paid_amount).toLocaleString('en-IN') }}
+                  </td>
+
+                  <!-- Remaining -->
+                  <td class="px-2 py-3.5 font-semibold text-neutral-900 text-right whitespace-nowrap">
+                    ₹{{ Number(sale.remaining_amount).toLocaleString('en-IN') }}
+                  </td>
+
+                  <!-- Status -->
+                  <td class="px-2 py-3.5 text-center whitespace-nowrap">
                     <span
                       :class="[
                         sale.payment_status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                         sale.payment_status === 'partial' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-red-50 text-red-700 border-red-200',
-                        'inline-block px-2.5 py-0.5 text-xs font-semibold rounded-md border capitalize'
+                        'inline-block px-2 py-0.5 text-[10px] font-semibold rounded-md border capitalize'
                       ]"
                     >
                       {{ sale.payment_status }}
                     </span>
                   </td>
-                  <!-- Invoice Redirect Button Column -->
-                  <td class="px-6 py-4 text-right">
+
+                  <!-- Invoice -->
+                  <td class="px-3 py-3.5 text-right whitespace-nowrap">
                     <router-link
                       :to="{ name: 'verify-sale', params: { id: sale.id } }"
                       target="_blank"
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-900 hover:text-white rounded-lg border border-neutral-200 transition-all cursor-pointer shadow-2xs"
+                      class="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-900 hover:text-white rounded-md border border-neutral-200 transition-all cursor-pointer"
                       title="View & Print Invoice"
                     >
-                      <font-awesome-icon icon="fa-solid fa-receipt" class="w-3 h-3" />
-                      Invoice
+                      <font-awesome-icon icon="fa-solid fa-receipt" class="w-2.5 h-2.5" />
+                      <span>Invoice</span>
                     </router-link>
                   </td>
                 </tr>
+
                 <tr v-if="!customer.sales || customer.sales.length === 0">
                   <td colspan="9" class="px-6 py-8 text-center text-neutral-400">
                     No sales recorded for this customer.
