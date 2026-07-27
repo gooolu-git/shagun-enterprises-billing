@@ -41,7 +41,7 @@
           </div>
         </div>
       </div>
-
+      <router-link to="/pending-payments">
       <div class="p-6 bg-white border border-neutral-200/80 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center gap-4">
           <div class="p-3.5 bg-red-50 text-red-600 rounded-xl">
@@ -53,6 +53,7 @@
           </div>
         </div>
       </div>
+      </router-link>
 
       <div class="p-6 bg-white border border-neutral-200/80 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center gap-4">
