@@ -30,7 +30,7 @@
           </p>
           <p class="text-xs text-neutral-500 flex items-center gap-1.5 mt-0.5">
             <font-awesome-icon icon="fa-solid fa-location-dot" class="text-neutral-400" />
-            Reriya Nahar Chowk , Ferusha , Garkha , Saran , 841415
+            Reriya Nahar Chowk , Chapra (Saran)
           </p>
           <p class="text-xs text-neutral-500 font-mono mt-0.5 flex items-center gap-1.5">
             <font-awesome-icon icon="fa-solid fa-phone" class="text-neutral-400" />
