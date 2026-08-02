@@ -11,6 +11,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/add-sale',
+      name: 'add-sale',
+      component: () => import('@/views/AddSale.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/pending-payments',
       name: 'pending-payments',
       component: () => import('@/views/PendingPayments.vue'),
@@ -64,7 +70,7 @@ router.beforeEach(async (to, from, next) => {
     // 2. Authenticated user trying to access login page -> Redirect to dashboard
     next({ name: 'dashboard' })
   } else {
-    // 3. Allow public access (e.g. /verify-sale/:id) or authenticated access to protected pages
+    // 3. Allow public access or authenticated access to protected pages
     next()
   }
 })

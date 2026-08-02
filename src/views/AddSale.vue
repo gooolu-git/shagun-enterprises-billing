@@ -1,17 +1,16 @@
 <template>
-  <div class="fixed inset-0 bg-neutral-900/50 flex items-center justify-center p-2 sm:p-4 z-50 overflow-y-auto">
-    <div class="bg-[#fcfcfc] rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-4xl p-4 sm:p-6 my-auto max-h-[95vh] overflow-y-auto">
+  <div class="min-h-screen bg-neutral-50/50 pb-12 pt-4 sm:pt-6">
+    <div class="mx-auto max-w-4xl px-3 sm:px-6 space-y-6">
 
-      <!-- TOP BAR -->
-      <div class="flex items-center justify-between border-b border-neutral-200 pb-3 sm:pb-4 mb-4 sm:mb-6">
-        <button
-          type="button"
-          @click="$emit('close')"
-          class="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors cursor-pointer"
+      <!-- TOP BAR & BREADCRUMB -->
+      <div class="flex items-center justify-between border-b border-neutral-200/80 pb-4">
+        <router-link
+          to="/"
+          class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors"
         >
           <font-awesome-icon icon="fa-solid fa-arrow-left" class="text-xs" />
-          Back
-        </button>
+          Back to Dashboard
+        </router-link>
         <h3 class="text-base sm:text-xl font-bold text-neutral-900 flex items-center gap-2">
           <font-awesome-icon icon="fa-solid fa-cart-plus" class="text-neutral-700" />
           Create New Sale
@@ -337,7 +336,6 @@
             </button>
           </div>
 
-          <!-- Video viewport container required by html5-qrcode -->
           <div id="barcode-reader" class="w-full overflow-hidden rounded-lg bg-black min-h-[250px]"></div>
 
           <p class="text-xs text-neutral-500 text-center">
@@ -364,7 +362,6 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase'
 import { Html5Qrcode } from 'html5-qrcode'
 
-const emit = defineEmits(['close', 'saved'])
 const router = useRouter()
 
 const loading = ref(false)
@@ -390,7 +387,6 @@ const items = ref([
   }
 ])
 
-// --- CAMERA SCANNER LOGIC ---
 const openScanner = async (index) => {
   activeTargetIndex.value = index
   showScannerModal.value = true
@@ -400,21 +396,15 @@ const openScanner = async (index) => {
   try {
     html5QrcodeScanner = new Html5Qrcode("barcode-reader")
     await html5QrcodeScanner.start(
-      { facingMode: "environment" }, // Prefers rear camera on mobiles
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 150 } // Rectangular scanning zone for barcodes
-      },
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 150 } },
       (decodedText) => {
-        // Successful barcode read
         if (activeTargetIndex.value !== null && items.value[activeTargetIndex.value]) {
           items.value[activeTargetIndex.value].imei_or_serial_no = decodedText
         }
         closeScanner()
       },
-      () => {
-        // Continuous frame search failure (ignored)
-      }
+      () => {}
     )
   } catch (err) {
     alert("Camera access failed or permission was denied: " + err)
@@ -427,9 +417,7 @@ const closeScanner = async () => {
     try {
       await html5QrcodeScanner.stop()
       html5QrcodeScanner.clear()
-    } catch (e) {
-      // Ignored if camera was already stopping
-    }
+    } catch (e) {}
     html5QrcodeScanner = null
   }
   showScannerModal.value = false
@@ -465,7 +453,6 @@ const subtotal = computed(() => {
 const remainingBalance = computed(() => Math.max(0, subtotal.value - (form.paid_amount || 0)))
 
 async function handleSave() {
-  // Enhanced validation guard
   if (!form.customer_name.trim() || !form.phone_number.trim() || !form.address.trim()) {
     alert("Please fill out all customer details.")
     return
@@ -541,9 +528,6 @@ async function handleSave() {
         if (paymentError) throw paymentError
       }
     }
-
-    emit('saved')
-    emit('close')
 
     const primarySaleId = createdSales[0].id
     router.push({

@@ -17,14 +17,14 @@
           Refresh
         </button>
 
-        <button
-          type="button"
-          @click="showModal = true"
+        <!-- Redirects to the standalone Add Sale view page -->
+        <router-link
+          to="/add-sale"
           class="flex items-center gap-2 px-5 py-2.5 bg-neutral-900 text-white rounded-xl text-sm font-semibold hover:bg-neutral-800 active:scale-[0.98] transition-all cursor-pointer shadow-md"
         >
           <font-awesome-icon icon="fa-solid fa-plus" />
           New Sale
-        </button>
+        </router-link>
       </div>
     </div>
 
@@ -89,22 +89,13 @@
         <font-awesome-icon icon="fa-solid fa-arrow-right" />
       </router-link>
     </div>
-
-    <!-- Add Sale Modal Component -->
-    <AddSaleModal
-      v-if="showModal"
-      @close="showModal = false"
-      @saved="handleSaleSaved"
-    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase'
-import AddSaleModal from '../components/AddSaleModal.vue'
 
-const showModal = ref(false)
 const loading = ref(false)
 const dailyRevenue = ref(0)
 const totalPending = ref(0)
@@ -119,7 +110,6 @@ async function fetchDashboardStats() {
   try {
     const today = new Date().toISOString().split('T')[0]
 
-    // 1. Fetch Today's Revenue & Sales Count
     const { data: salesToday, error: salesError } = await supabase
       .from('sales')
       .select('paid_amount')
@@ -130,7 +120,6 @@ async function fetchDashboardStats() {
       dailySalesCount.value = salesToday.length
     }
 
-    // 2. Fetch Total Pending Dues from View
     const { data: dues, error: duesError } = await supabase
       .from('customer_dues')
       .select('total_due')
@@ -143,11 +132,6 @@ async function fetchDashboardStats() {
   } finally {
     loading.value = false
   }
-}
-
-function handleSaleSaved() {
-  showModal.value = false
-  fetchDashboardStats()
 }
 
 onMounted(fetchDashboardStats)
