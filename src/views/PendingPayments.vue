@@ -132,21 +132,32 @@
 
               <!-- Actions -->
               <td class="py-3.5 px-4">
-                <div class="flex items-center justify-center gap-2">
+                <div class="flex items-center justify-center gap-1.5">
                   <!-- Direct Call Button -->
                   <a
                     :href="`tel:${item.customers?.phone_number}`"
-                    class="p-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1.5"
+                    class="p-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1"
                     title="Call Customer"
                   >
                     <font-awesome-icon icon="fa-solid fa-phone" />
                     <span>Call</span>
                   </a>
 
+                  <!-- WhatsApp Reminder Button -->
+                  <a
+                    :href="getWhatsAppLink(item)"
+                    target="_blank"
+                    class="p-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1"
+                    title="Send WhatsApp Message"
+                  >
+                    <font-awesome-icon icon="fa-brands fa-whatsapp" />
+                    <span>WA</span>
+                  </a>
+
                   <!-- Record Payment Button -->
                   <button
                     @click="openPaymentModal(item)"
-                    class="p-2 bg-neutral-900 text-white hover:bg-neutral-800 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                    class="p-2 bg-neutral-900 text-white hover:bg-neutral-800 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1 cursor-pointer"
                   >
                     <font-awesome-icon icon="fa-solid fa-receipt" />
                     <span>Collect</span>
@@ -216,20 +227,28 @@
           </div>
 
           <!-- Quick Actions Bar -->
-          <div class="grid grid-cols-2 gap-2 pt-1">
+          <div class="grid grid-cols-3 gap-2 pt-1">
             <a
               :href="`tel:${item.customers?.phone_number}`"
-              class="w-full py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border border-emerald-200 transition-colors"
+              class="w-full py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border border-emerald-200 transition-colors"
             >
               <font-awesome-icon icon="fa-solid fa-phone" />
-              Call Customer
+              Call
+            </a>
+            <a
+              :href="getWhatsAppLink(item)"
+              target="_blank"
+              class="w-full py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <font-awesome-icon icon="fa-brands fa-whatsapp" />
+              WhatsApp
             </a>
             <button
               @click="openPaymentModal(item)"
-              class="w-full py-2 bg-neutral-900 text-white hover:bg-neutral-800 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              class="w-full py-2 bg-neutral-900 text-white hover:bg-neutral-800 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <font-awesome-icon icon="fa-solid fa-hand-holding-dollar" />
-              Collect Money
+              Collect
             </button>
           </div>
         </div>
@@ -412,6 +431,58 @@ function formatDate(dateStr) {
     month: 'short',
     year: 'numeric'
   })
+}
+
+// Helper method to build a bilingual WhatsApp URL with essential clean emojis only
+const getWhatsAppLink = (sale) => {
+  if (!sale.customers) return '#'
+
+  const rawPhone = sale.customers.whatsapp_number || sale.customers.phone_number || ''
+  let cleanPhone = rawPhone.replace(/\D/g, '') // remove non-numeric chars
+
+  // Automatically prepend Indian country code 91 if it's missing a country code (10 digits)
+  if (cleanPhone.length === 10) {
+    cleanPhone = '91' + cleanPhone
+  }
+
+  const remaining = Number(sale.remaining_amount || 0)
+
+  // English Section
+  let message = `Hello ${sale.customers.name},\n\n`
+  message += `Regarding your purchase of *${sale.item_name}* (IMEI/Serial: ${sale.imei_or_serial_no || 'N/A'}) on ${sale.sale_date}:\n`
+  message += `• Total Price: ₹${Number(sale.price).toLocaleString('en-IN')}\n`
+  message += `• Amount Paid: ₹${Number(sale.paid_amount).toLocaleString('en-IN')}\n`
+
+  if (remaining > 0) {
+    message += `• Remaining Balance Due: ₹${remaining.toLocaleString('en-IN')}\n\n`
+    message += `Kindly clear your pending dues at your earliest convenience. Thank you!\n\n`
+  } else {
+    message += `• Status: Fully Paid ✅\n\n`
+    message += `Thank you for shopping with us!\n\n`
+  }
+
+  // Divider line to separate languages clearly
+  message += `--------------------\n\n`
+
+  // Hindi Section
+  message += `नमस्ते ${sale.customers.name},\n\n`
+  message += `${sale.sale_date} को आपके द्वारा खरीदे गए आइटम *${sale.item_name}* (IMEI/Serial: ${sale.imei_or_serial_no || 'N/A'}) के संबंध में:\n`
+  message += `• कुल मूल्य: ₹${Number(sale.price).toLocaleString('en-IN')}\n`
+  message += `• भुगतान किया गया: ₹${Number(sale.paid_amount).toLocaleString('en-IN')}\n`
+
+  if (remaining > 0) {
+    message += `• शेष राशि बकाया: ₹${remaining.toLocaleString('en-IN')}\n\n`
+    message += `कृपया जल्द से जल्द अपना बकाया भुगतान करें। धन्यवाद!\n\n`
+  } else {
+    message += `• स्थिति: पूर्ण भुगतान ✅\n\n`
+    message += `हमारे साथ खरीदारी करने के लिए धन्यवाद!\n\n`
+  }
+
+  // Footer Signature with Business Name & Owner Phone No
+  message += `Shagun Enterprises\n`
+  message += `Owner Phone No: 9097625322`
+
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
 }
 
 function openPaymentModal(item) {
