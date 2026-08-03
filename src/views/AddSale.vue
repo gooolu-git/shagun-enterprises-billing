@@ -141,7 +141,6 @@
                       type="number"
                       min="1"
                       required
-                      placeholder="0"
                       class="w-full px-2.5 py-1.5 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-neutral-900"
                     />
                   </td>
@@ -309,8 +308,13 @@
             <div class="pt-3 space-y-2">
               <button
                 type="submit"
-                :disabled="loading"
-                class="w-full py-3 bg-black text-white rounded-lg font-medium hover:bg-neutral-800 disabled:opacity-50 transition-colors shadow-md flex items-center justify-center gap-2 text-sm cursor-pointer"
+                :disabled="!isFormComplete || loading"
+                :class="[
+                  'w-full py-3 rounded-lg font-medium transition-colors shadow-md flex items-center justify-center gap-2 text-sm',
+                  isFormComplete && !loading
+                    ? 'bg-black text-white hover:bg-neutral-800 cursor-pointer'
+                    : 'bg-neutral-200 text-neutral-400 cursor-not-allowed shadow-none'
+                ]"
               >
                 <font-awesome-icon v-if="!loading" icon="fa-solid fa-file-invoice-dollar" />
                 <font-awesome-icon v-else icon="fa-solid fa-spinner" class="animate-spin" />
@@ -373,7 +377,7 @@ const form = reactive({
   customer_name: '',
   phone_number: '',
   address: '',
-  paid_amount: 0,
+  paid_amount: null,
   payment_method: 'cash'
 })
 
@@ -386,6 +390,39 @@ const items = ref([
     price: null
   }
 ])
+
+// Computed property to check if all mandatory fields are completely filled
+const isFormComplete = computed(() => {
+  // Check customer fields
+  if (!form.customer_name?.trim() || !form.phone_number?.trim() || !form.address?.trim()) {
+    return false
+  }
+
+  // Check paid amount validity (must not be null and must be >= 0)
+  if (form.paid_amount === null || form.paid_amount < 0 || form.paid_amount > subtotal.value) {
+    return false
+  }
+
+  // Check items array
+  if (!items.value || items.value.length === 0) {
+    return false
+  }
+
+  // Check each item row for required fields
+  for (const item of items.value) {
+    if (
+      !item.item_name?.trim() ||
+      !item.imei_or_serial_no?.trim() ||
+      item.price === null ||
+      item.price === '' ||
+      Number(item.price) <= 0
+    ) {
+      return false
+    }
+  }
+
+  return true
+})
 
 const openScanner = async (index) => {
   activeTargetIndex.value = index
@@ -453,23 +490,7 @@ const subtotal = computed(() => {
 const remainingBalance = computed(() => Math.max(0, subtotal.value - (form.paid_amount || 0)))
 
 async function handleSave() {
-  if (!form.customer_name.trim() || !form.phone_number.trim() || !form.address.trim()) {
-    alert("Please fill out all customer details.")
-    return
-  }
-
-  const hasInvalidItems = items.value.some(
-    item => !item.item_name.trim() || !item.imei_or_serial_no.trim() || !item.price || item.price <= 0
-  )
-  if (hasInvalidItems) {
-    alert("Please ensure all items have a description, valid IMEI/Serial number, and a price greater than 0.")
-    return
-  }
-
-  if (form.paid_amount === null || form.paid_amount < 0) {
-    alert("Please enter a valid paid amount (0 or higher).")
-    return
-  }
+  if (!isFormComplete.value) return
 
   loading.value = true
   try {
