@@ -16,6 +16,7 @@ export default defineConfig({
       workbox: {
         clientsClaim: true,
         skipWaiting: true,
+        maximumFileSizeToCacheInBytes: 20 * 1024 * 1024, // Sets limit to 20 MB to prevent build size errors
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
