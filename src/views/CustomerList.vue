@@ -30,13 +30,13 @@
             Last 7 Days
           </button>
           <button
-            @click="activeTab = 'custom'"
+            @click="activeTab = 'single'"
             :class="[
               'px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap',
-              activeTab === 'custom' ? 'bg-white text-neutral-900 shadow-xs' : 'text-neutral-600 hover:text-neutral-900'
+              activeTab === 'single' ? 'bg-white text-neutral-900 shadow-xs' : 'text-neutral-600 hover:text-neutral-900'
             ]"
           >
-            Custom Range
+            Choose Date
           </button>
           <button
             @click="activeTab = 'all'"
@@ -50,30 +50,42 @@
         </div>
       </div>
 
-      <!-- Custom Date Picker Filters -->
-      <div v-if="activeTab === 'custom'" class="flex flex-row items-center gap-2 bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-neutral-200/80 shadow-xs overflow-x-auto">
+      <!-- Single Date Picker with Backward / Forward Navigation -->
+      <div v-if="activeTab === 'single'" class="flex flex-row items-center gap-2 bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-neutral-200/80 shadow-xs overflow-x-auto">
         <div class="flex items-center gap-1.5 shrink-0">
-          <label class="text-[11px] sm:text-xs font-semibold text-neutral-600">From:</label>
+          <label class="text-[11px] sm:text-xs font-semibold text-neutral-600">Date:</label>
           <input
-            v-model="startDate"
+            v-model="selectedDate"
             type="date"
             class="rounded-lg sm:rounded-xl border border-neutral-200 bg-neutral-50 px-2 sm:px-3 py-1 text-[11px] sm:text-xs text-neutral-900 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900"
           />
         </div>
-        <div class="flex items-center gap-1.5 shrink-0">
-          <label class="text-[11px] sm:text-xs font-semibold text-neutral-600">To:</label>
-          <input
-            v-model="endDate"
-            type="date"
-            class="rounded-lg sm:rounded-xl border border-neutral-200 bg-neutral-50 px-2 sm:px-3 py-1 text-[11px] sm:text-xs text-neutral-900 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900"
-          />
+
+        <div class="flex items-center gap-1.5 ml-2 shrink-0">
+          <button
+            @click="shiftDate(-1)"
+            class="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 transition-all cursor-pointer shadow-xs"
+            title="Previous Day"
+          >
+            <font-awesome-icon icon="fa-solid fa-chevron-left" class="w-2.5 h-2.5 text-neutral-500" />
+            Prev Day
+          </button>
+          <button
+            @click="shiftDate(1)"
+            class="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 transition-all cursor-pointer shadow-xs"
+            title="Next Day"
+          >
+            Next Day
+            <font-awesome-icon icon="fa-solid fa-chevron-right" class="w-2.5 h-2.5 text-neutral-500" />
+          </button>
         </div>
+
         <button
-          v-if="startDate || endDate"
-          @click="startDate = ''; endDate = ''"
+          v-if="selectedDate !== getTodayStr()"
+          @click="selectedDate = getTodayStr()"
           class="text-[11px] sm:text-xs font-semibold text-neutral-500 hover:text-neutral-900 underline ml-auto whitespace-nowrap shrink-0 px-1"
         >
-          Reset
+          Today
         </button>
       </div>
 
@@ -207,13 +219,22 @@ import { Style, Avatar } from '@dicebear/core'
 import avataaars from '@dicebear/styles/avataaars.json' with { type: 'json' }
 
 const style = new Style(avataaars)
-const activeTab = ref('all') // 'today' | 'week' | 'custom' | 'all'
-const startDate = ref('')
-const endDate = ref('')
+const activeTab = ref('all') // 'today' | 'week' | 'single' | 'all'
+const selectedDate = ref(getTodayStr())
 const searchQuery = ref('')
 const customers = ref([])
 const loading = ref(true)
 const deletingId = ref(null)
+
+function getTodayStr() {
+  return new Date().toISOString().split('T')[0]
+}
+
+function shiftDate(days) {
+  const d = new Date(selectedDate.value)
+  d.setDate(d.getDate() + days)
+  selectedDate.value = d.toISOString().split('T')[0]
+}
 
 async function fetchCustomers() {
   try {
@@ -304,7 +325,7 @@ onMounted(() => {
 })
 
 const filteredCustomers = computed(() => {
-  const todayStr = new Date().toISOString().split('T')[0]
+  const todayStr = getTodayStr()
   const sevenDaysAgo = new Date()
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
@@ -317,10 +338,8 @@ const filteredCustomers = computed(() => {
         return s.sale_date === todayStr
       } else if (activeTab.value === 'week') {
         return s.sale_date && new Date(s.sale_date) >= sevenDaysAgo
-      } else if (activeTab.value === 'custom') {
-        if (startDate.value && s.sale_date < startDate.value) return false
-        if (endDate.value && s.sale_date > endDate.value) return false
-        return true
+      } else if (activeTab.value === 'single') {
+        return s.sale_date === selectedDate.value
       }
       return true
     })
@@ -335,7 +354,7 @@ const filteredCustomers = computed(() => {
       totalDue
     }
   }).filter(customer => {
-    // If a date filter (today, week, custom) is active, hide customers with zero matching sales in that timeframe
+    // If a date filter (today, week, single) is active, hide customers with zero matching sales in that timeframe
     if (activeTab.value !== 'all' && customer.matchingSalesCount === 0) {
       return false
     }
