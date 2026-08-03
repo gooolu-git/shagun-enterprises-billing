@@ -1,31 +1,31 @@
 <template>
-  <div class="space-y-8 p-1 sm:p-2">
-    <!-- Top Bar -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-sm">
+  <div class="space-y-6 p-1 sm:p-2 pb-12">
+    <!-- Greeting & Action Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-xs">
       <div>
-        <h1 class="text-2xl font-extrabold text-neutral-900 tracking-tight">Business Analytics</h1>
-        <p class="text-sm text-neutral-500 mt-1">Deep-dive graphs, payment realizations, and category contributions</p>
+        <h1 class="text-xl sm:text-2xl font-extrabold text-neutral-900 tracking-tight">Business Analytics</h1>
+        <p class="text-xs sm:text-sm text-neutral-500 mt-0.5">Deep-dive graphs, payment realizations, and category contributions</p>
       </div>
 
       <button
         @click="fetchAnalyticsData"
         :disabled="loading"
-        class="px-4 py-2.5 border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 rounded-xl text-sm font-medium transition-all flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
+        class="px-3.5 py-2 border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer"
       >
         <font-awesome-icon icon="fa-solid fa-arrows-rotate" :class="{ 'animate-spin': loading }" />
         Refresh Graphs
       </button>
     </div>
 
-    <!-- Charts Grid -->
+    <!-- Charts Grid (Row 1: Main Trends & Category Share) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Chart 1: Revenue vs Ledger Realization -->
-      <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-sm space-y-4">
-        <div>
-          <h3 class="font-bold text-neutral-900 text-base">Billed Revenue vs Realized Cash</h3>
+      <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+        <div class="mb-6">
+          <h2 class="text-base font-bold text-neutral-900">Billed Revenue vs Realized Cash</h2>
           <p class="text-xs text-neutral-500">Monthly comparison of total invoices against ledger payment receipts</p>
         </div>
-        <div class="h-80 relative">
+        <div class="h-72 relative">
           <Bar v-if="!loading && chartDataTrend.labels.length" :data="chartDataTrend" :options="barChartOptions" />
           <div v-else class="h-full flex items-center justify-center text-xs text-neutral-400">
             <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin text-xl mr-2" />
@@ -35,12 +35,12 @@
       </div>
 
       <!-- Chart 2: Category Revenue Distribution -->
-      <div class="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-sm space-y-4">
-        <div>
-          <h3 class="font-bold text-neutral-900 text-base">Category Performance</h3>
+      <div class="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+        <div class="mb-4">
+          <h2 class="text-base font-bold text-neutral-900">Category Performance</h2>
           <p class="text-xs text-neutral-500">Gross revenue generated per category</p>
         </div>
-        <div class="h-80 relative flex items-center justify-center">
+        <div class="h-60 relative flex items-center justify-center my-2">
           <Doughnut v-if="!loading && chartDataCategory.labels.length" :data="chartDataCategory" :options="doughnutOptions" />
           <div v-else class="h-full flex items-center justify-center text-xs text-neutral-400">
             <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin text-xl mr-2" />
@@ -50,9 +50,42 @@
       </div>
     </div>
 
+    <!-- Charts Grid (Row 2: Additional Custom Analysis - Payment Methods & Status Distribution) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Chart 3: Payment Methods Breakdown -->
+      <div class="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+        <div class="mb-4">
+          <h2 class="text-base font-bold text-neutral-900">Payment Methods Breakdown</h2>
+          <p class="text-xs text-neutral-500">Volume distribution across cash, UPI, cards, and bank transfers</p>
+        </div>
+        <div class="h-64 relative flex items-center justify-center my-2">
+          <Doughnut v-if="!loading && chartDataMethods.labels.length" :data="chartDataMethods" :options="doughnutOptions" />
+          <div v-else class="h-full flex items-center justify-center text-xs text-neutral-400">
+            <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin text-xl mr-2" />
+            Loading payment methods...
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 4: Invoice Status Breakdown -->
+      <div class="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+        <div class="mb-6">
+          <h2 class="text-base font-bold text-neutral-900">Invoice Status Overview</h2>
+          <p class="text-xs text-neutral-500">Distribution of active, returned, and cancelled inventory entries</p>
+        </div>
+        <div class="h-64 relative">
+          <Bar v-if="!loading && chartDataStatus.labels.length" :data="chartDataStatus" :options="horizontalBarOptions" />
+          <div v-else class="h-full flex items-center justify-center text-xs text-neutral-400">
+            <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin text-xl mr-2" />
+            Loading status metrics...
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Automated Financial Insights -->
-    <div class="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-sm space-y-4">
-      <h3 class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Automated Business Insights</h3>
+    <div class="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
+      <h2 class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Automated Business Insights</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
 
         <div class="p-4 bg-neutral-50 rounded-xl border border-neutral-200/60 flex items-start gap-3">
@@ -118,6 +151,8 @@ const topCategory = reactive({ name: 'N/A', amount: 0 })
 
 const chartDataTrend = reactive({ labels: [], datasets: [] })
 const chartDataCategory = reactive({ labels: [], datasets: [] })
+const chartDataMethods = reactive({ labels: [], datasets: [] })
+const chartDataStatus = reactive({ labels: [], datasets: [] })
 
 const collectionRate = computed(() => {
   if (!grandTotalRevenue.value) return 0
@@ -133,11 +168,27 @@ const barChartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { position: 'top' }
+    legend: {
+      position: 'top',
+      labels: { font: { family: 'inherit', size: 12 }, usePointStyle: true, pointStyle: 'circle' }
+    }
   },
   scales: {
-    x: { grid: { display: false } },
-    y: { grid: { color: '#f3f4f6' }, beginAtZero: true }
+    x: { grid: { display: false }, ticks: { font: { family: 'inherit', size: 11 } } },
+    y: { grid: { color: '#f3f4f6' }, beginAtZero: true, ticks: { font: { family: 'inherit', size: 11 } } }
+  }
+}
+
+const horizontalBarOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  indexAxis: 'y',
+  plugins: {
+    legend: { display: false }
+  },
+  scales: {
+    x: { grid: { color: '#f3f4f6' }, beginAtZero: true, ticks: { font: { family: 'inherit', size: 11 } } },
+    y: { grid: { display: false }, ticks: { font: { family: 'inherit', size: 11 } } }
   }
 }
 
@@ -145,7 +196,10 @@ const doughnutOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { position: 'bottom' }
+    legend: {
+      position: 'bottom',
+      labels: { font: { family: 'inherit', size: 12 }, usePointStyle: true, pointStyle: 'circle', boxWidth: 8 }
+    }
   }
 }
 
@@ -154,35 +208,41 @@ async function fetchAnalyticsData() {
   try {
     const { data: sales } = await supabase
       .from('sales')
-      .select('price, paid_amount, item_category, sale_date')
-      .eq('status', 'active')
+      .select('price, paid_amount, item_category, sale_date, status')
 
     const { data: payments } = await supabase
       .from('payments')
-      .select('amount_paid, created_at')
+      .select('amount_paid, payment_method, created_at')
 
     if (sales) {
-      totalItemsSold.value = sales.length
+      const activeSales = sales.filter(s => s.status === 'active')
+      totalItemsSold.value = activeSales.length
+
       let revSum = 0
       let paidSum = 0
       const catMap = {}
       const monthlyTrend = {}
+      const statusMap = { active: 0, returned: 0, cancelled: 0 }
 
       sales.forEach(sale => {
         const price = Number(sale.price || 0)
         const paid = Number(sale.paid_amount || 0)
 
-        revSum += price
-        paidSum += paid
+        statusMap[sale.status] = (statusMap[sale.status] || 0) + 1
 
-        const cat = sale.item_category || 'other'
-        catMap[cat] = (catMap[cat] || 0) + price
+        if (sale.status === 'active') {
+          revSum += price
+          paidSum += paid
 
-        const monthKey = new Date(sale.sale_date).toLocaleString('en-IN', { month: 'short', year: '2-digit' })
-        if (!monthlyTrend[monthKey]) {
-          monthlyTrend[monthKey] = { sales: 0, payments: 0 }
+          const cat = sale.item_category || 'other'
+          catMap[cat] = (catMap[cat] || 0) + price
+
+          const monthKey = new Date(sale.sale_date).toLocaleString('en-IN', { month: 'short', year: '2-digit' })
+          if (!monthlyTrend[monthKey]) {
+            monthlyTrend[monthKey] = { sales: 0, payments: 0 }
+          }
+          monthlyTrend[monthKey].sales += price
         }
-        monthlyTrend[monthKey].sales += price
       })
 
       if (payments) {
@@ -210,11 +270,13 @@ async function fetchAnalyticsData() {
         {
           label: 'Billed Sales (₹)',
           backgroundColor: '#171717',
+          borderRadius: 6,
           data: months.map(m => monthlyTrend[m].sales)
         },
         {
           label: 'Realized Payments (₹)',
           backgroundColor: '#10b981',
+          borderRadius: 6,
           data: months.map(m => monthlyTrend[m].payments)
         }
       ]
@@ -224,7 +286,37 @@ async function fetchAnalyticsData() {
       chartDataCategory.datasets = [
         {
           backgroundColor: ['#171717', '#3b82f6', '#f59e0b', '#6b7280', '#10b981'],
+          borderWidth: 2,
+          borderColor: '#ffffff',
           data: categories.map(c => catMap[c])
+        }
+      ]
+
+      // Payment Methods Distribution Chart Data
+      const methodMap = { cash: 0, upi: 0, card: 0, bank_transfer: 0 }
+      if (payments) {
+        payments.forEach(p => {
+          const m = p.payment_method || 'cash'
+          methodMap[m] = (methodMap[m] || 0) + Number(p.amount_paid || 0)
+        })
+      }
+      chartDataMethods.labels = ['Cash', 'UPI', 'Card', 'Bank Transfer']
+      chartDataMethods.datasets = [
+        {
+          backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'],
+          borderWidth: 2,
+          borderColor: '#ffffff',
+          data: [methodMap.cash, methodMap.upi, methodMap.card, methodMap.bank_transfer]
+        }
+      ]
+
+      // Status Overview Bar Chart Data
+      chartDataStatus.labels = ['Active', 'Returned', 'Cancelled']
+      chartDataStatus.datasets = [
+        {
+          backgroundColor: ['#171717', '#f59e0b', '#ef4444'],
+          borderRadius: 6,
+          data: [statusMap.active, statusMap.returned, statusMap.cancelled]
         }
       ]
     }

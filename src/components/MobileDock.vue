@@ -1,6 +1,6 @@
 <template>
   <!-- Levitating Minimalist Mobile Bottom Dock (Visible on Mobile Only) matching the header theme -->
-  <div class="fixed bottom-0 left-0 right-0 z-50 w-full pointer-events-none md:hidden pb-3 px-3">
+  <div class="fixed bottom-0 left-0 right-0 z-50 w-full pointer-events-none md:hidden pb-1 px-3 border border-white/70 bg-white/82 shadow-[var(--shadow-sm)] backdrop-blur-xl transition-all duration-300 dark:border-white/10">
     <div
       @mouseenter="isDockHovered = true"
       @mouseleave="() => { isDockHovered = false; hoveredDockIndex = null; }"

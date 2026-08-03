@@ -1,7 +1,7 @@
 <template>
-  <header class="sticky top-0 z-50 px-3 pt-3 sm:px-4 transition-all duration-450">
+  <header class="sticky top-0 z-50 px-3 pt-3 sm:px-6 transition-all duration-450">
     <div
-      class="page-shell rounded-[1.75rem] border border-white/70 bg-white/82 shadow-[var(--shadow-sm)] backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-card/82"
+      class="mx-auto max-w-5xl rounded-[1.75rem] border border-white/70 bg-white/82 shadow-[var(--shadow-sm)] backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-card/82"
     >
       <div class="flex h-16 items-center justify-between gap-4 px-4 sm:px-6">
         <!-- Brand Logo -->
@@ -28,7 +28,6 @@
               class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
               active-class="!bg-neutral-100 !text-neutral-900 shadow-2xs font-semibold"
             >
-              <font-awesome-icon icon="fa-solid fa-house" class="h-4 w-4" />
               <span>Dashboard</span>
             </router-link>
 
@@ -37,7 +36,6 @@
               class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
               active-class="!bg-neutral-100 !text-neutral-900 shadow-2xs font-semibold"
             >
-              <font-awesome-icon icon="fa-solid fa-users" class="h-4 w-4" />
               <span>Sales</span>
             </router-link>
 
@@ -47,7 +45,6 @@
               class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
               active-class="!bg-amber-100/70 !text-amber-900 shadow-2xs font-semibold"
             >
-              <font-awesome-icon icon="fa-solid fa-hand-holding-dollar" class="h-4 w-4 text-amber-500" />
               <span>Pending Dues</span>
               <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
             </router-link>
@@ -57,7 +54,6 @@
               class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
               active-class="!bg-neutral-100 !text-neutral-900 shadow-2xs font-semibold"
             >
-              <font-awesome-icon icon="fa-solid fa-chart-line" class="h-4 w-4" />
               <span>Analytics</span>
             </router-link>
           </nav>
@@ -116,66 +112,12 @@
                   </div>
                 </div>
 
-                <!-- Route Links (Mobile & Dropdown unified) -->
-                <div class="py-2 space-y-1">
-                  <router-link
-                    to="/"
-                    @click="isDropdownOpen = false"
-                    class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
-                  >
-                    <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700">
-                      <font-awesome-icon icon="fa-solid fa-house" class="w-3.5 h-3.5" />
-                    </div>
-                    <span class="font-medium">Dashboard</span>
-                  </router-link>
-
-                  <router-link
-                    to="/customers"
-                    @click="isDropdownOpen = false"
-                    class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
-                  >
-                    <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700">
-                      <font-awesome-icon icon="fa-solid fa-users" class="w-3.5 h-3.5" />
-                    </div>
-                    <span class="font-medium">Sales</span>
-                  </router-link>
-
-                  <!-- Pending Dues Option -->
-                  <router-link
-                    to="/pending-payments"
-                    @click="isDropdownOpen = false"
-                    class="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
-                  >
-                    <div class="flex items-center gap-3">
-                      <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
-                        <font-awesome-icon icon="fa-solid fa-hand-holding-dollar" class="w-3.5 h-3.5" />
-                      </div>
-                      <span class="font-medium">Pending Dues</span>
-                    </div>
-                    <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-full">Ledger</span>
-                  </router-link>
-
-                  <router-link
-                    to="/analytics"
-                    @click="isDropdownOpen = false"
-                    class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
-                  >
-                    <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700">
-                      <font-awesome-icon icon="fa-solid fa-chart-line" class="w-3.5 h-3.5" />
-                    </div>
-                    <span class="font-medium">Analytics</span>
-                  </router-link>
-                </div>
-
-                <!-- Logout Button -->
+                <!-- Logout Button Only -->
                 <div class="pt-1">
                   <button
                     @click="handleSignOut"
                     class="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors text-left cursor-pointer"
                   >
-                    <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-red-100 text-red-600">
-                      <font-awesome-icon icon="fa-solid fa-right-from-bracket" class="w-3.5 h-3.5" />
-                    </div>
                     <span>Sign out</span>
                   </button>
                 </div>
