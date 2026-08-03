@@ -1,1 +1,9 @@
 @import 'tailwindcss';
+@keyframes levitate {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-6px); }
+}
+
+.dock-container {
+  animation: levitate 7s ease-in-out infinite alternate;
+}

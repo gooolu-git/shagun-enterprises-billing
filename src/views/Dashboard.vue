@@ -67,28 +67,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Quick Analytics Preview Section -->
-    <div class="bg-gradient-to-br from-neutral-900 to-neutral-800 text-white rounded-2xl p-6 sm:p-8 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-      <div class="space-y-2">
-        <div class="inline-flex items-center gap-2 px-3 py-1 bg-neutral-700/50 rounded-full text-xs font-semibold text-neutral-300">
-          <font-awesome-icon icon="fa-solid fa-chart-line" />
-          Real-time Visual Analytics
-        </div>
-        <h3 class="text-xl font-bold">Revenue & Sales Trends</h3>
-        <p class="text-sm text-neutral-300 max-w-xl">
-          Track sales realization, category performance, and ledger recovery insights on the dedicated analytics view.
-        </p>
-      </div>
-
-      <router-link
-        to="/analytics"
-        class="px-5 py-3 bg-white text-neutral-900 hover:bg-neutral-100 rounded-xl font-bold text-sm transition-all flex items-center gap-2 shrink-0 shadow"
-      >
-        View Interactive Graphs
-        <font-awesome-icon icon="fa-solid fa-arrow-right" />
-      </router-link>
-    </div>
   </div>
 </template>
 
