@@ -4,6 +4,8 @@
     <main class="mx-auto max-w-5xl px-4 sm:px-6 py-8">
       <router-view />
     </main>
+    <ReloadPrompt />
+    <InstallPrompt />
   </div>
 </template>
 
@@ -12,6 +14,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase'
 import Navbar from '@/components/Navbar.vue'
+import ReloadPrompt from '@/components/ReloadPrompt.vue'
+import InstallPrompt from '@/components/InstallPrompt.vue'
 
 const router = useRouter()
 const session = ref(null)
