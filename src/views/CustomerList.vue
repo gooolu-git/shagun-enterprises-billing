@@ -1,12 +1,12 @@
 <template>
   <div class="min-h-screen bg-neutral-50/50 pb-12 pt-6">
-    <div class="mx-auto max-w-6xl px-4 sm:px-6 space-y-4 sm:space-y-6">
+    <div class="mx-auto max-w-5xl px-6 space-y-6">
 
       <!-- Page Header & Filter Tabs -->
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">Sales History</h1>
-          <p class="text-xs sm:text-sm text-neutral-500">View transactions, filter by date ranges, or browse the complete ledger.</p>
+          <h1 class="text-2xl font-bold tracking-tight text-neutral-900">Customers</h1>
+          <p class="text-sm text-neutral-500">Manage customer directories, search accounts, and view outstanding dues.</p>
         </div>
 
         <!-- Filter Tabs (Horizontal scrollable/compact on mobile) -->
@@ -45,12 +45,12 @@
               activeTab === 'all' ? 'bg-white text-neutral-900 shadow-xs' : 'text-neutral-600 hover:text-neutral-900'
             ]"
           >
-            All Sales
+            All Customers
           </button>
         </div>
       </div>
 
-      <!-- Custom Date Picker Filters (Single line flex container with compact mobile padding) -->
+      <!-- Custom Date Picker Filters -->
       <div v-if="activeTab === 'custom'" class="flex flex-row items-center gap-2 bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-neutral-200/80 shadow-xs overflow-x-auto">
         <div class="flex items-center gap-1.5 shrink-0">
           <label class="text-[11px] sm:text-xs font-semibold text-neutral-600">From:</label>
@@ -78,145 +78,121 @@
       </div>
 
       <!-- Search Bar -->
-      <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-3">
         <div class="relative flex-1">
           <font-awesome-icon
             icon="fa-solid fa-magnifying-glass"
-            class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 w-3.5 h-3.5 sm:w-4 sm:h-4"
+            class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4"
           />
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search customer, phone, or item/IMEI..."
-            class="w-full rounded-xl border border-neutral-200 bg-white pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 text-xs sm:text-sm text-neutral-900 placeholder-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900 transition-all shadow-xs"
+            placeholder="Search by phone number or name..."
+            class="w-full rounded-xl border border-neutral-200 bg-white pl-10 pr-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900 transition-all shadow-xs"
           />
         </div>
         <button
           v-if="searchQuery"
           @click="searchQuery = ''"
-          class="px-2.5 py-2 text-xs font-semibold text-neutral-500 hover:text-neutral-900 transition-colors shrink-0"
+          class="px-3 py-2.5 text-xs font-semibold text-neutral-500 hover:text-neutral-900 transition-colors"
         >
           Clear
         </button>
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="py-16 text-center text-neutral-400">
-        <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin text-3xl text-neutral-700 mb-2" />
-        <p class="text-sm font-medium text-neutral-600">Loading sales records...</p>
+      <div v-if="loading" class="py-12 text-center text-neutral-400">
+        <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin text-2xl text-neutral-600 mb-2" />
+        <p class="text-sm font-medium text-neutral-600">Loading customer directory...</p>
       </div>
 
-      <!-- Sales Table Card -->
-      <div v-else class="overflow-hidden rounded-xl sm:rounded-2xl border border-neutral-200/80 bg-white shadow-xs">
+      <!-- Customer List Table -->
+      <div v-else class="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-xs">
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs sm:text-sm">
-            <thead class="border-b border-neutral-100 bg-neutral-50/50 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500">
+          <table class="w-full text-left text-sm">
+            <thead class="border-b border-neutral-100 bg-neutral-50/50 text-xs font-semibold uppercase tracking-wider text-neutral-500">
               <tr>
-                <th scope="col" class="px-3 sm:px-6 py-3">Date</th>
-                <th scope="col" class="px-3 sm:px-6 py-3">Customer</th>
-                <th scope="col" class="px-3 sm:px-6 py-3">Item Description</th>
-                <th scope="col" class="px-3 sm:px-6 py-3">Category</th>
-                <th scope="col" class="px-3 sm:px-6 py-3">Price (₹)</th>
-                <th scope="col" class="px-3 sm:px-6 py-3">Status</th>
-                <th scope="col" class="px-3 sm:px-6 py-3 text-right">Action</th>
+                <th scope="col" class="px-6 py-3.5">Customer</th>
+                <th scope="col" class="px-6 py-3.5">Phone Number</th>
+                <th scope="col" class="px-6 py-3.5">Total Billed</th>
+                <th scope="col" class="px-6 py-3.5">Outstanding Due</th>
+                <th scope="col" class="px-6 py-3.5 text-right">Action</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-neutral-100 text-neutral-700">
               <tr
-                v-for="sale in paginatedSales"
-                :key="sale.id"
+                v-for="customer in filteredCustomers"
+                :key="customer.id"
                 class="hover:bg-neutral-50/80 transition-colors group"
               >
-                <!-- Date -->
-                <td class="px-3 sm:px-6 py-3 font-mono text-[11px] sm:text-xs text-neutral-600 whitespace-nowrap">
-                  {{ sale.sale_date }}
+                <!-- Avatar & Name -->
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div
+                      v-html="getAvatarSvg(customer.phone_number || customer.name)"
+                      class="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-neutral-200 bg-neutral-100 [&>svg]:h-full [&>svg]:w-full"
+                    ></div>
+                    <div>
+                      <p class="font-semibold text-neutral-900">{{ customer.name }}</p>
+                      <p class="text-xs text-neutral-400">{{ customer.address || 'No address saved' }}</p>
+                    </div>
+                  </div>
                 </td>
 
-                <!-- Customer Name & Phone -->
-                <td class="px-3 sm:px-6 py-3">
-                  <p class="font-semibold text-neutral-900 text-xs sm:text-sm">{{ sale.customers?.name || 'Walk-in Customer' }}</p>
-                  <p class="text-[11px] sm:text-xs font-mono text-neutral-400">{{ sale.customers?.phone_number || 'N/A' }}</p>
+                <!-- Phone Number -->
+                <td class="px-6 py-4 font-mono text-xs font-medium text-neutral-600">
+                  {{ customer.phone_number }}
                 </td>
 
-                <!-- Item Description & IMEI -->
-                <td class="px-3 sm:px-6 py-3">
-                  <p class="font-medium text-neutral-900 text-xs sm:text-sm">{{ sale.item_name }}</p>
-                  <p class="text-[11px] sm:text-xs font-mono text-neutral-400">IMEI: {{ sale.imei_or_serial_no || 'None' }}</p>
+                <!-- Total Billed -->
+                <td class="px-6 py-4 font-medium text-neutral-900">
+                  ₹{{ customer.totalBilled.toLocaleString('en-IN') }}
                 </td>
 
-                <!-- Category -->
-                <td class="px-3 sm:px-6 py-3 capitalize text-[11px] sm:text-xs">
-                  <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-neutral-100 font-medium text-neutral-700 whitespace-nowrap">
-                    {{ sale.item_category.replace('_', ' ') }}
-                  </span>
-                </td>
-
-                <!-- Price -->
-                <td class="px-3 sm:px-6 py-3 font-semibold text-neutral-900 text-xs sm:text-sm whitespace-nowrap">
-                  ₹{{ Number(sale.price).toLocaleString('en-IN') }}
-                </td>
-
-                <!-- Status Badge -->
-                <td class="px-3 sm:px-6 py-3 whitespace-nowrap">
+                <!-- Pending Due -->
+                <td class="px-6 py-4 font-medium">
                   <span
                     :class="[
-                      'px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold rounded-full capitalize',
-                      sale.payment_status === 'paid' ? 'bg-emerald-50 text-emerald-700' :
-                      sale.payment_status === 'partial' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'
+                      customer.totalDue > 0 ? 'text-amber-600 font-semibold' : 'text-emerald-600 font-normal'
                     ]"
                   >
-                    {{ sale.payment_status }}
+                    ₹{{ customer.totalDue.toLocaleString('en-IN') }}
                   </span>
                 </td>
 
-                <!-- Action Button -->
-                <td class="px-3 sm:px-6 py-3 text-right whitespace-nowrap">
-                  <router-link
-                    :to="`/sales/${sale.id}`"
-                    class="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 transition-all cursor-pointer shadow-xs"
-                  >
-                    View Bill
-                    <font-awesome-icon icon="fa-solid fa-arrow-right" class="w-2.5 h-2.5 text-neutral-400" />
-                  </router-link>
+                <!-- Action Buttons -->
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <router-link
+                      :to="`/customers/${customer.id}`"
+                      class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 transition-all cursor-pointer shadow-xs"
+                    >
+                      View Details
+                      <font-awesome-icon icon="fa-solid fa-arrow-right" class="w-3 h-3 text-neutral-400" />
+                    </router-link>
+
+                    <button
+                      @click="deleteCustomerData(customer)"
+                      :disabled="deletingId === customer.id"
+                      class="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 hover:text-red-700 transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                      title="Delete Customer & All Associated Sales/Payments Data"
+                    >
+                      <font-awesome-icon v-if="deletingId === customer.id" icon="fa-solid fa-spinner" class="animate-spin w-3 h-3" />
+                      <font-awesome-icon v-else icon="fa-solid fa-trash-can" class="w-3 h-3" />
+                    </button>
+                  </div>
                 </td>
               </tr>
 
               <!-- Empty State -->
-              <tr v-if="filteredSales.length === 0">
-                <td colspan="7" class="px-6 py-12 text-center text-neutral-400">
-                  <p class="text-sm sm:text-base font-medium text-neutral-700">No sales records found</p>
-                  <p class="text-xs text-neutral-400 mt-1">Try switching date filters or searching for another keyword.</p>
+              <tr v-if="filteredCustomers.length === 0">
+                <td colspan="5" class="px-6 py-12 text-center text-neutral-400">
+                  <p class="text-base font-medium text-neutral-700">No matching customers found</p>
+                  <p class="text-xs text-neutral-400 mt-1">Try switching date filters or typing a search query.</p>
                 </td>
               </tr>
             </tbody>
           </table>
-        </div>
-
-        <!-- Pagination Bar -->
-        <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between border-t border-neutral-200/80 px-4 sm:px-6 py-3 bg-neutral-50/30 gap-2">
-          <p class="text-[11px] sm:text-xs text-neutral-500">
-            Showing <span class="font-semibold text-neutral-800">{{ paginationStart + 1 }}</span> to <span class="font-semibold text-neutral-800">{{ paginationEnd }}</span> of <span class="font-semibold text-neutral-800">{{ filteredSales.length }}</span> entries
-          </p>
-
-          <div class="flex items-center gap-2">
-            <button
-              @click="currentPage--"
-              :disabled="currentPage === 1"
-              class="px-2.5 py-1 text-[11px] sm:text-xs font-semibold rounded-lg border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-xs"
-            >
-              Previous
-            </button>
-            <span class="text-[11px] sm:text-xs font-medium text-neutral-600 px-1">
-              Page {{ currentPage }} of {{ totalPages }}
-            </span>
-            <button
-              @click="currentPage++"
-              :disabled="currentPage >= totalPages"
-              class="px-2.5 py-1 text-[11px] sm:text-xs font-semibold rounded-lg border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-xs"
-            >
-              Next
-            </button>
-          </div>
         </div>
       </div>
 
@@ -225,101 +201,164 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase'
+import { Style, Avatar } from '@dicebear/core'
+import avataaars from '@dicebear/styles/avataaars.json' with { type: 'json' }
 
-const activeTab = ref('today') // 'today' | 'week' | 'custom' | 'all'
+const style = new Style(avataaars)
+const activeTab = ref('all') // 'today' | 'week' | 'custom' | 'all'
 const startDate = ref('')
 const endDate = ref('')
 const searchQuery = ref('')
-const sales = ref([])
+const customers = ref([])
 const loading = ref(true)
+const deletingId = ref(null)
 
-const currentPage = ref(1)
-const itemsPerPage = 10
-
-async function fetchSales() {
+async function fetchCustomers() {
   try {
     loading.value = true
     const { data, error } = await supabase
-      .from('sales')
+      .from('customers')
       .select(`
         id,
-        item_name,
-        item_category,
-        imei_or_serial_no,
-        price,
-        paid_amount,
-        remaining_amount,
-        payment_status,
-        sale_date,
-        status,
-        customers (
-          name,
-          phone_number
+        name,
+        phone_number,
+        whatsapp_number,
+        address,
+        sales (
+          id,
+          price,
+          remaining_amount,
+          status,
+          sale_date
         )
       `)
-      .order('sale_date', { ascending: false })
       .order('created_at', { ascending: false })
 
     if (error) throw error
-    sales.value = data || []
+
+    customers.value = (data || []).map(cust => {
+      return {
+        ...cust,
+        sales: cust.sales || []
+      }
+    })
   } catch (err) {
-    console.error('Error fetching sales:', err.message)
+    console.error('Error fetching customers:', err.message)
   } finally {
     loading.value = false
   }
 }
 
+async function deleteCustomerData(customer) {
+  const confirmed = window.confirm(
+    `Are you sure you want to delete "${customer.name}" and ALL associated sales, records, and payment data? This action cannot be undone.`
+  )
+  if (!confirmed) return
+
+  deletingId.value = customer.id
+  try {
+    const { data: salesData, error: salesFetchError } = await supabase
+      .from('sales')
+      .select('id')
+      .eq('customer_id', customer.id)
+
+    if (salesFetchError) throw salesFetchError
+
+    const saleIds = (salesData || []).map(s => s.id)
+
+    if (saleIds.length > 0) {
+      const { error: paymentsDeleteError } = await supabase
+        .from('payments')
+        .delete()
+        .in('sale_id', saleIds)
+
+      if (paymentsDeleteError) throw paymentsDeleteError
+
+      const { error: salesDeleteError } = await supabase
+        .from('sales')
+        .delete()
+        .eq('customer_id', customer.id)
+
+      if (salesDeleteError) throw salesDeleteError
+    }
+
+    const { error: customerDeleteError } = await supabase
+      .from('customers')
+      .delete()
+      .eq('id', customer.id)
+
+    if (customerDeleteError) throw customerDeleteError
+
+    customers.value = customers.value.filter(c => c.id !== customer.id)
+  } catch (err) {
+    alert('Failed to delete customer data: ' + err.message)
+  } finally {
+    deletingId.value = null
+  }
+}
+
 onMounted(() => {
-  fetchSales()
+  fetchCustomers()
 })
 
-// Reset pagination when tabs, dates, or search queries change
-watch([activeTab, startDate, endDate, searchQuery], () => {
-  currentPage.value = 1
-})
-
-const filteredSales = computed(() => {
-  let list = sales.value
+const filteredCustomers = computed(() => {
   const todayStr = new Date().toISOString().split('T')[0]
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
-  // Filter by active tab or custom date range
-  if (activeTab.value === 'today') {
-    list = list.filter(s => s.sale_date === todayStr)
-  } else if (activeTab.value === 'week') {
-    const sevenDaysAgo = new Date()
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-    list = list.filter(s => new Date(s.sale_date) >= sevenDaysAgo)
-  } else if (activeTab.value === 'custom') {
-    if (startDate.value) {
-      list = list.filter(s => s.sale_date >= startDate.value)
-    }
-    if (endDate.value) {
-      list = list.filter(s => s.sale_date <= endDate.value)
-    }
-  }
+  return customers.value.map(customer => {
+    // Filter customer's individual sales based on active tab / date range
+    const matchingSales = customer.sales.filter(s => {
+      if (s.status !== 'active') return false
 
-  // Filter by search query
-  if (searchQuery.value.trim()) {
-    const q = searchQuery.value.toLowerCase().trim()
-    list = list.filter(s =>
-      (s.item_name && s.item_name.toLowerCase().includes(q)) ||
-      (s.imei_or_serial_no && s.imei_or_serial_no.toLowerCase().includes(q)) ||
-      (s.customers?.name && s.customers.name.toLowerCase().includes(q)) ||
-      (s.customers?.phone_number && s.customers.phone_number.toLowerCase().includes(q))
+      if (activeTab.value === 'today') {
+        return s.sale_date === todayStr
+      } else if (activeTab.value === 'week') {
+        return s.sale_date && new Date(s.sale_date) >= sevenDaysAgo
+      } else if (activeTab.value === 'custom') {
+        if (startDate.value && s.sale_date < startDate.value) return false
+        if (endDate.value && s.sale_date > endDate.value) return false
+        return true
+      }
+      return true
+    })
+
+    const totalBilled = matchingSales.reduce((sum, s) => sum + Number(s.price || 0), 0)
+    const totalDue = matchingSales.reduce((sum, s) => sum + Number(s.remaining_amount || 0), 0)
+
+    return {
+      ...customer,
+      matchingSalesCount: matchingSales.length,
+      totalBilled,
+      totalDue
+    }
+  }).filter(customer => {
+    // If a date filter (today, week, custom) is active, hide customers with zero matching sales in that timeframe
+    if (activeTab.value !== 'all' && customer.matchingSalesCount === 0) {
+      return false
+    }
+
+    // Search query matching
+    if (!searchQuery.value.trim()) return true
+    const query = searchQuery.value.toLowerCase().trim()
+    return (
+      (customer.phone_number && customer.phone_number.toLowerCase().includes(query)) ||
+      (customer.name && customer.name.toLowerCase().includes(query))
     )
-  }
-
-  return list
+  })
 })
 
-const totalPages = computed(() => Math.ceil(filteredSales.value.length / itemsPerPage) || 1)
-
-const paginationStart = computed(() => (currentPage.value - 1) * itemsPerPage)
-const paginationEnd = computed(() => Math.min(paginationStart.value + itemsPerPage, filteredSales.value.length))
-
-const paginatedSales = computed(() => {
-  return filteredSales.value.slice(paginationStart.value, paginationEnd.value)
-})
+function getAvatarSvg(seed) {
+  const avatar = new Avatar(style, {
+    seed: seed || 'Shagun',
+    topProbability: 100,
+    topVariant: ['shortFlat', 'shortWaved', 'shortRound', 'shavedSides'],
+    hairColor: ['2c1b18', '4a312c', '000000'],
+    clothesVariant: ['blazerAndShirt', 'shirtCrewNeck', 'collarAndSweater'],
+    backgroundColor: ['b6e3f4', 'c0aede', 'd1d4f9', 'ffd5dc']
+  })
+  return avatar.toString()
+}
 </script>
