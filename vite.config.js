@@ -21,7 +21,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
         name: 'Shagun Enterprises',
-        short_name: 'Shagun Enterprises',
+        short_name: 'Shagun Ent.',
         description: 'Billing, Security & Customer Management',
         theme_color: '#ffffff',
         background_color: '#ffffff',

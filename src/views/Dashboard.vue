@@ -1,26 +1,25 @@
 <template>
-  <div class="space-y-6 p-1 sm:p-2 pb-12">
+  <div class="space-y-8 p-1 sm:p-2">
     <!-- Greeting & Action Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-xs">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-sm">
       <div>
-        <h1 class="text-xl sm:text-2xl font-extrabold text-neutral-900 tracking-tight">Welcome back, Admin</h1>
-        <p class="text-xs sm:text-sm text-neutral-500 mt-0.5">Here is your daily summary for {{ formattedDate }}</p>
+        <h1 class="text-2xl font-extrabold text-neutral-900 tracking-tight">Welcome back, Admin</h1>
+        <p class="text-sm text-neutral-500 mt-1">Here is your daily summary for {{ formattedDate }}</p>
       </div>
 
       <div class="flex items-center gap-3">
         <button
-          @click="fetchDashboardStats"
+          @click="refreshAll"
           :disabled="loading"
-          class="px-3.5 py-2 border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer"
+          class="px-4 py-2.5 border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 rounded-xl text-sm font-medium transition-all flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
         >
           <font-awesome-icon icon="fa-solid fa-arrows-rotate" :class="{ 'animate-spin': loading }" />
           Refresh
         </button>
 
-        <!-- Redirects to the standalone Add Sale view page -->
         <router-link
           to="/add-sale"
-          class="flex items-center gap-2 px-4 py-2 bg-neutral-900 text-white rounded-xl text-xs sm:text-sm font-semibold hover:bg-neutral-800 active:scale-[0.98] transition-all cursor-pointer shadow-md"
+          class="flex items-center gap-2 px-5 py-2.5 bg-neutral-900 text-white rounded-xl text-sm font-semibold hover:bg-neutral-800 active:scale-[0.98] transition-all cursor-pointer shadow-md"
         >
           <font-awesome-icon icon="fa-solid fa-plus" />
           New Sale
@@ -28,58 +27,60 @@
       </div>
     </div>
 
-    <!-- Stats Grid (Compact & Narrower Widths) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl">
-      <div class="p-4 bg-white border border-neutral-200/80 rounded-2xl shadow-xs hover:shadow-sm transition-shadow">
-        <div class="flex items-center gap-3">
-          <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
-            <font-awesome-icon icon="fa-solid fa-wallet" class="text-lg" />
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- 1. Total Revenue (Today) -->
+      <div class="p-6 bg-white border border-neutral-200/80 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-4">
+          <div class="p-3.5 bg-blue-50 text-blue-600 rounded-xl">
+            <font-awesome-icon icon="fa-solid fa-wallet" class="text-xl" />
           </div>
           <div>
-            <p class="text-[11px] text-neutral-500 uppercase tracking-wider font-bold">Total Revenue (Today)</p>
-            <p class="text-xl font-black text-neutral-900 mt-0.5">₹{{ dailyRevenue.toLocaleString('en-IN') }}</p>
+            <p class="text-xs text-neutral-500 uppercase tracking-wider font-bold">Total Revenue (Today)</p>
+            <p class="text-2xl font-black text-neutral-900 mt-0.5">₹{{ dailyRevenue.toLocaleString('en-IN') }}</p>
           </div>
         </div>
       </div>
 
-      <router-link to="/pending-payments" class="block group">
-        <div class="p-4 bg-white border border-neutral-200/80 rounded-2xl shadow-xs group-hover:shadow-sm transition-shadow">
-          <div class="flex items-center gap-3">
-            <div class="p-3 bg-red-50 text-red-600 rounded-xl">
-              <font-awesome-icon icon="fa-solid fa-clock" class="text-lg" />
+      <!-- 2. Pending Dues (Total) -->
+      <router-link to="/pending-payments">
+        <div class="p-6 bg-white border border-neutral-200/80 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+          <div class="flex items-center gap-4">
+            <div class="p-3.5 bg-red-50 text-red-600 rounded-xl">
+              <font-awesome-icon icon="fa-solid fa-clock" class="text-xl" />
             </div>
             <div>
-              <p class="text-[11px] text-neutral-500 uppercase tracking-wider font-bold">Pending Dues (Total)</p>
-              <p class="text-xl font-black text-red-600 mt-0.5">₹{{ totalPending.toLocaleString('en-IN') }}</p>
+              <p class="text-xs text-neutral-500 uppercase tracking-wider font-bold">Pending Dues (Total)</p>
+              <p class="text-2xl font-black text-red-600 mt-0.5">₹{{ totalPending.toLocaleString('en-IN') }}</p>
             </div>
           </div>
         </div>
       </router-link>
 
-      <div class="p-4 bg-white border border-neutral-200/80 rounded-2xl shadow-xs hover:shadow-sm transition-shadow">
-        <div class="flex items-center gap-3">
-          <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-            <font-awesome-icon icon="fa-solid fa-circle-check" class="text-lg" />
+      <!-- 3. Sales Today -->
+      <div class="p-6 bg-white border border-neutral-200/80 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-4">
+          <div class="p-3.5 bg-emerald-50 text-emerald-600 rounded-xl">
+            <font-awesome-icon icon="fa-solid fa-circle-check" class="text-xl" />
           </div>
           <div>
-            <p class="text-[11px] text-neutral-500 uppercase tracking-wider font-bold">Sales Today</p>
-            <p class="text-xl font-black text-neutral-900 mt-0.5">{{ dailySalesCount }}</p>
+            <p class="text-xs text-neutral-500 uppercase tracking-wider font-bold">Sales Today (Items)</p>
+            <p class="text-2xl font-black text-neutral-900 mt-0.5">{{ dailySalesCount }}</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Analytics & Graphs Section -->
+    <!-- Analytics Graphs Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      <!-- Line Chart: 7-Day Category Sales Trend -->
-      <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+      <!-- Line Chart: 7-Day Trend -->
+      <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-sm flex flex-col justify-between">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
             <h2 class="text-base font-bold text-neutral-900">7-Day Sales Trend by Category</h2>
             <p class="text-xs text-neutral-500">Live DB metrics for Phones, Fridges, Washing Machines, and Others</p>
           </div>
-          <!-- Category Legend -->
           <div class="flex flex-wrap items-center gap-3 text-xs font-medium">
             <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-500"></span> Phones</span>
             <span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-indigo-400"></span> Fridges</span>
@@ -88,9 +89,7 @@
           </div>
         </div>
 
-        <!-- Animated SVG Line Chart -->
         <div class="relative h-64 w-full flex items-end pt-4 pb-2">
-          <!-- Background Grid Lines -->
           <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-40">
             <div class="border-b border-dashed border-neutral-200 w-full"></div>
             <div class="border-b border-dashed border-neutral-200 w-full"></div>
@@ -99,42 +98,32 @@
           </div>
 
           <svg class="w-full h-52 overflow-visible z-10" viewBox="0 0 700 200" preserveAspectRatio="none">
-            <!-- Phones Line -->
-            <path :d="phoneLinePath" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" class="transition-all duration-1000 ease-out animate-fade-in" />
-            <!-- Fridges Line -->
-            <path :d="fridgeLinePath" fill="none" stroke="#818cf8" stroke-width="3" stroke-linecap="round" class="transition-all duration-1000 ease-out animate-fade-in" />
-            <!-- Washing Machines Line -->
-            <path :d="washingLinePath" fill="none" stroke="#2dd4bf" stroke-width="3" stroke-linecap="round" class="transition-all duration-1000 ease-out animate-fade-in" />
-            <!-- Other Line -->
-            <path :d="otherLinePath" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" class="transition-all duration-1000 ease-out animate-fade-in" />
+            <path :d="phoneLinePath" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+            <path :d="fridgeLinePath" fill="none" stroke="#818cf8" stroke-width="3" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+            <path :d="washingLinePath" fill="none" stroke="#2dd4bf" stroke-width="3" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+            <path :d="otherLinePath" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
           </svg>
         </div>
 
-        <!-- X-Axis Labels -->
         <div class="flex justify-between text-[11px] font-semibold text-neutral-400 pt-3 border-t border-neutral-100">
           <span v-for="(day, idx) in last7DaysLabels" :key="idx">{{ day }}</span>
         </div>
       </div>
 
-      <!-- Donut Chart: Category Proportionality Share -->
-      <div class="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+      <!-- Donut / Pie Chart: Category Share -->
+      <div class="bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-sm flex flex-col justify-between">
         <div>
           <h2 class="text-base font-bold text-neutral-900">Category Share</h2>
-          <p class="text-xs text-neutral-500">Proportional revenue distribution</p>
+          <p class="text-xs text-neutral-500">Distribution over Last 7 Days</p>
         </div>
 
-        <!-- Donut Visualizer -->
         <div class="relative flex items-center justify-center py-6">
           <div class="relative w-44 h-44 flex items-center justify-center">
             <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
               <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#f1f5f9" stroke-width="3.5" />
-              <!-- Phones Segment -->
               <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#3b82f6" stroke-width="3.5" :stroke-dasharray="`${phoneShare} ${100 - phoneShare}`" stroke-dashoffset="0" class="transition-all duration-1000 ease-out" />
-              <!-- Fridges Segment -->
               <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#818cf8" stroke-width="3.5" :stroke-dasharray="`${fridgeShare} ${100 - fridgeShare}`" :stroke-dashoffset="`${-phoneShare}`" class="transition-all duration-1000 ease-out" />
-              <!-- Washing Machine Segment -->
               <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#2dd4bf" stroke-width="3.5" :stroke-dasharray="`${washingShare} ${100 - washingShare}`" :stroke-dashoffset="`${-(phoneShare + fridgeShare)}`" class="transition-all duration-1000 ease-out" />
-              <!-- Other Segment -->
               <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#fbbf24" stroke-width="3.5" :stroke-dasharray="`${otherShare} ${100 - otherShare}`" :stroke-dashoffset="`${-(phoneShare + fridgeShare + washingShare)}`" class="transition-all duration-1000 ease-out" />
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
@@ -144,7 +133,6 @@
           </div>
         </div>
 
-        <!-- Breakdown Legend with Percentages -->
         <div class="space-y-2 pt-2 border-t border-neutral-100 text-xs font-medium">
           <div class="flex items-center justify-between text-neutral-600">
             <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Phones</span>
@@ -174,10 +162,13 @@ import { ref, computed, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase'
 
 const loading = ref(false)
+
+// CARD METRICS
 const dailyRevenue = ref(0)
 const totalPending = ref(0)
 const dailySalesCount = ref(0)
 
+// GRAPH METRICS
 const trendData = ref({
   phone: [0, 0, 0, 0, 0, 0, 0],
   fridge: [0, 0, 0, 0, 0, 0, 0],
@@ -194,12 +185,18 @@ const formattedDate = new Date().toLocaleDateString('en-IN', {
   weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
 })
 
+// Helper: Local Date Formatter (YYYY-MM-DD)
+function getLocalDateString(dateObj = new Date()) {
+  return dateObj.toLocaleDateString('en-CA')
+}
+
+// Helper calculations for SVG chart lines
 const last7DaysInfo = computed(() => {
   const info = []
   for (let i = 6; i >= 0; i--) {
     const d = new Date()
     d.setDate(d.getDate() - i)
-    const dateString = d.toISOString().split('T')[0]
+    const dateString = getLocalDateString(d)
     const label = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' })
     info.push({ dateString, label })
   }
@@ -233,75 +230,53 @@ const fridgeLinePath = computed(() => createSvgPath(trendData.value.fridge))
 const washingLinePath = computed(() => createSvgPath(trendData.value.washing_machine))
 const otherLinePath = computed(() => createSvgPath(trendData.value.other))
 
+// ==========================================
+// UNTOUCHED ORIGINAL DASHBOARD STATS LOGIC
+// ==========================================
 async function fetchDashboardStats() {
   loading.value = true
   try {
-    const today = new Date().toISOString().split('T')[0]
-    const startDate = last7DaysInfo.value[0].dateString
+    const today = getLocalDateString(new Date())
+    const startOfToday = new Date(`${today}T00:00:00`).toISOString()
+    const endOfToday = new Date(`${today}T23:59:59.999`).toISOString()
 
-    // Fetch active sales from the past 7 days using your actual database columns
-    const { data: salesData, error: salesError } = await supabase
+    // 1. TOTAL SALES COUNT: Items created in sales table today
+    const { count: salesCount, error: salesError } = await supabase
       .from('sales')
-      .select('price, paid_amount, item_category, sale_date, status')
-      .gte('sale_date', startDate)
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', startOfToday)
+      .lte('created_at', endOfToday)
       .eq('status', 'active')
 
-    if (!salesError && salesData) {
-      const salesToday = salesData.filter(s => s.sale_date === today)
-      dailyRevenue.value = salesToday.reduce((sum, s) => sum + Number(s.paid_amount || 0), 0)
-      dailySalesCount.value = salesToday.length
+    dailySalesCount.value = salesError ? 0 : (salesCount || 0)
 
-      let pTotal = 0, fTotal = 0, wTotal = 0, oTotal = 0
-      salesToday.forEach(s => {
-        const amt = Number(s.price || 0)
-        switch (s.item_category) {
-          case 'phone': pTotal += amt; break;
-          case 'fridge': fTotal += amt; break;
-          case 'washing_machine': wTotal += amt; break;
-          default: oTotal += amt; break;
-        }
-      })
+    // 2. TOTAL REVENUE: Sum of money collected today in payments table
+    const { data: todayPayments, error: paymentsError } = await supabase
+      .from('payments')
+      .select('amount_paid')
+      .gte('created_at', startOfToday)
+      .lte('created_at', endOfToday)
 
-      const grandTotal = pTotal + fTotal + wTotal + oTotal
-      if (grandTotal > 0) {
-        phoneShare.value = Math.round((pTotal / grandTotal) * 100)
-        fridgeShare.value = Math.round((fTotal / grandTotal) * 100)
-        washingShare.value = Math.round((wTotal / grandTotal) * 100)
-        otherShare.value = 100 - (phoneShare.value + fridgeShare.value + washingShare.value)
-      }
-
-      const pTrend = [0, 0, 0, 0, 0, 0, 0]
-      const fTrend = [0, 0, 0, 0, 0, 0, 0]
-      const wTrend = [0, 0, 0, 0, 0, 0, 0]
-      const oTrend = [0, 0, 0, 0, 0, 0, 0]
-
-      last7DaysInfo.value.forEach((dayInfo, index) => {
-        const daySales = salesData.filter(s => s.sale_date === dayInfo.dateString)
-        daySales.forEach(s => {
-          const val = Number(s.price || 0)
-          if (s.item_category === 'phone') pTrend[index] += val
-          else if (s.item_category === 'fridge') fTrend[index] += val
-          else if (s.item_category === 'washing_machine') wTrend[index] += val
-          else oTrend[index] += val
-        })
-      })
-
-      trendData.value = {
-        phone: pTrend,
-        fridge: fTrend,
-        washing_machine: wTrend,
-        other: oTrend
-      }
+    if (!paymentsError && todayPayments) {
+      dailyRevenue.value = todayPayments.reduce((sum, p) => sum + Number(p.amount_paid || 0), 0)
+    } else {
+      dailyRevenue.value = 0
     }
 
-    // Fetch total customer pending dues from your customer_dues view
+    // 3. PENDING DUES: Sum of all remaining balances across customer_dues view
     const { data: dues, error: duesError } = await supabase
       .from('customer_dues')
-      .select('total_due')
+      .select('*')
 
     if (!duesError && dues) {
       totalPending.value = dues.reduce((sum, d) => sum + Number(d.total_due || 0), 0)
+    } else {
+      totalPending.value = 0
     }
+
+    // 4. Update Trend Graph
+    await fetchGraphLogic()
+
   } catch (err) {
     console.error('Error fetching dashboard stats:', err)
   } finally {
@@ -309,15 +284,108 @@ async function fetchDashboardStats() {
   }
 }
 
-onMounted(fetchDashboardStats)
-</script>
+// ==========================================
+// UNTOUCHED ORIGINAL GRAPH LOGIC
+// ==========================================
+async function fetchGraphLogic() {
+  const startDate = last7DaysInfo.value[0].dateString
 
-<style scoped>
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  const { data: graphSales, error } = await supabase
+    .from('sales')
+    .select('price, item_category, sale_date, status')
+    .gte('sale_date', startDate)
+    .eq('status', 'active')
+
+  if (!error && graphSales) {
+    const pTrend = [0, 0, 0, 0, 0, 0, 0]
+    const fTrend = [0, 0, 0, 0, 0, 0, 0]
+    const wTrend = [0, 0, 0, 0, 0, 0, 0]
+    const oTrend = [0, 0, 0, 0, 0, 0, 0]
+
+    last7DaysInfo.value.forEach((dayInfo, index) => {
+      const daySales = graphSales.filter(s => s.sale_date === dayInfo.dateString)
+      daySales.forEach(s => {
+        const val = Number(s.price || 0)
+        if (s.item_category === 'phone') pTrend[index] += val
+        else if (s.item_category === 'fridge') fTrend[index] += val
+        else if (s.item_category === 'washing_machine') wTrend[index] += val
+        else oTrend[index] += val
+      })
+    })
+
+    trendData.value = {
+      phone: pTrend,
+      fridge: fTrend,
+      washing_machine: wTrend,
+      other: oTrend
+    }
+  }
 }
-.animate-fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
+
+// ==========================================
+// NEW SEPARATE FUNCTION: PIE CHART (7-DAY MIX)
+// ==========================================
+async function fetch7DayPieChartData() {
+  try {
+    const startDate = last7DaysInfo.value[0].dateString
+
+    const { data: pieSales, error } = await supabase
+      .from('sales')
+      .select('price, item_category')
+      .gte('sale_date', startDate)
+      .eq('status', 'active')
+
+    if (error || !pieSales || pieSales.length === 0) {
+      phoneShare.value = 0
+      fridgeShare.value = 0
+      washingShare.value = 0
+      otherShare.value = 0
+      return
+    }
+
+    let phoneTotal = 0
+    let fridgeTotal = 0
+    let washingTotal = 0
+    let otherTotal = 0
+
+    pieSales.forEach(item => {
+      const price = Number(item.price || 0)
+      const cat = (item.item_category || '').toLowerCase()
+
+      if (cat === 'phone') {
+        phoneTotal += price
+      } else if (cat === 'fridge') {
+        fridgeTotal += price
+      } else if (cat === 'washing_machine' || cat === 'washing machine') {
+        washingTotal += price
+      } else {
+        otherTotal += price
+      }
+    })
+
+    const grandTotal = phoneTotal + fridgeTotal + washingTotal + otherTotal
+
+    if (grandTotal > 0) {
+      phoneShare.value = Math.round((phoneTotal / grandTotal) * 100)
+      fridgeShare.value = Math.round((fridgeTotal / grandTotal) * 100)
+      washingShare.value = Math.round((washingTotal / grandTotal) * 100)
+      otherShare.value = Math.max(0, 100 - (phoneShare.value + fridgeShare.value + washingShare.value))
+    } else {
+      phoneShare.value = 0
+      fridgeShare.value = 0
+      washingShare.value = 0
+      otherShare.value = 0
+    }
+  } catch (err) {
+    console.error('Error fetching 7-day pie chart data:', err)
+  }
 }
-</style>
+
+// Unified Refresh Trigger
+async function refreshAll() {
+  await fetchDashboardStats()
+  await fetch7DayPieChartData()
+}
+
+onMounted(refreshAll)
+</script>

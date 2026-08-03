@@ -6,14 +6,12 @@
       <div class="flex h-16 items-center justify-between gap-4 px-4 sm:px-6">
         <!-- Brand Logo -->
         <router-link to="/" class="group flex items-center gap-3">
-          <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#1a73e8_0%,#4285f4_55%,#34a853_100%)] text-white shadow-[var(--shadow-sm)] font-bold text-sm tracking-wider">
-            SE
-          </div>
+          <img src="/img/logo.png" alt="Shagun Enterprises Logo" class="h-13 w-auto object-contain">
           <div class="leading-tight">
-            <div class="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-neutral-500/70">
+            <div class="text-base font-semibold uppercase tracking-[-0.03em] text-neutral-900 sm:text-lg">
               Shagun
             </div>
-            <div class="text-base font-semibold tracking-[-0.03em] text-neutral-900 sm:text-lg">
+            <div  class="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-neutral-500/70">
               Enterprises
             </div>
           </div>
