@@ -21,10 +21,26 @@
 
         <!-- 1. CUSTOMER IDENTIFICATION CARD -->
         <div class="bg-white rounded-xl border border-neutral-200 p-3.5 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
-          <h4 class="text-[11px] sm:text-xs font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1.5">
-            <font-awesome-icon icon="fa-solid fa-user-tag" />
-            Customer Identification
-          </h4>
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-neutral-100 pb-3">
+            <h4 class="text-[11px] sm:text-xs font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1.5">
+              <font-awesome-icon icon="fa-solid fa-user-tag" />
+              Customer Identification & Date
+            </h4>
+
+            <!-- Sale Date Picker Field -->
+            <div class="w-full sm:w-auto flex items-center gap-2">
+              <label class="text-xs font-semibold text-neutral-600 whitespace-nowrap">
+                Sale Date:
+              </label>
+              <input
+                v-model="form.sale_date"
+                type="date"
+                required
+                class="px-3 py-1.5 border border-neutral-300 rounded-lg text-xs sm:text-sm bg-neutral-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 cursor-pointer"
+              />
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label class="block text-xs font-medium text-neutral-600 mb-1">
@@ -290,6 +306,7 @@
                 <option value="upi">UPI</option>
                 <option value="card">Card</option>
                 <option value="bank_transfer">Bank Transfer</option>
+                <option value="emi">EMI</option>
               </select>
             </div>
 
@@ -373,10 +390,19 @@ const showScannerModal = ref(false)
 const activeTargetIndex = ref(null)
 let html5QrcodeScanner = null
 
+// Helper to get local date string YYYY-MM-DD
+function getLocalDateString(dateObj = new Date()) {
+  const year = dateObj.getFullYear()
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+  const day = String(dateObj.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 const form = reactive({
   customer_name: '',
   phone_number: '',
   address: '',
+  sale_date: getLocalDateString(), // Default to today's date
   paid_amount: null,
   payment_method: 'cash'
 })
@@ -393,8 +419,8 @@ const items = ref([
 
 // Computed property to check if all mandatory fields are completely filled
 const isFormComplete = computed(() => {
-  // Check customer fields
-  if (!form.customer_name?.trim() || !form.phone_number?.trim() || !form.address?.trim()) {
+  // Check customer fields & sale date
+  if (!form.customer_name?.trim() || !form.phone_number?.trim() || !form.address?.trim() || !form.sale_date) {
     return false
   }
 
@@ -493,7 +519,11 @@ async function handleSave() {
   if (!isFormComplete.value) return
 
   loading.value = true
+  let createdCustomerId = null
+  let createdSaleIds = []
+
   try {
+    // 1. Insert Customer
     const { data: customer, error: custError } = await supabase
       .from('customers')
       .insert({
@@ -506,13 +536,16 @@ async function handleSave() {
       .single()
 
     if (custError) throw custError
+    createdCustomerId = customer.id
 
+    // 2. Insert Sales Items
     const salesPayload = items.value.map(item => ({
-      customer_id: customer.id,
+      customer_id: createdCustomerId,
       item_name: item.item_name,
       item_category: item.item_category,
       imei_or_serial_no: item.imei_or_serial_no || null,
-      price: Number(item.price)
+      price: Number(item.price),
+      sale_date: form.sale_date
     }))
 
     const { data: createdSales, error: saleError } = await supabase
@@ -521,7 +554,9 @@ async function handleSave() {
       .select()
 
     if (saleError) throw saleError
+    createdSaleIds = createdSales.map(s => s.id)
 
+    // 3. Insert Payments (if any)
     if (form.paid_amount > 0) {
       const totalItemPriceSum = subtotal.value || 1
       const paymentsPayload = []
@@ -550,7 +585,7 @@ async function handleSave() {
       }
     }
 
-    const primarySaleId = createdSales[0].id
+    const primarySaleId = createdSaleIds[0]
     router.push({
       name: 'verify-sale',
       params: { id: primarySaleId },
@@ -558,10 +593,20 @@ async function handleSave() {
     })
 
   } catch (err) {
+    // --- VUE-SIDE ROLLBACK CLEANUP ---
+    console.error('Error occurred, rolling back changes...', err)
+
+    if (createdSaleIds.length > 0) {
+      await supabase.from('sales').delete().in('id', createdSaleIds)
+    }
+    if (createdCustomerId) {
+      await supabase.from('customers').delete().eq('id', createdCustomerId)
+    }
+
     if (err.code === '23505') {
-      alert('Error: This IMEI/Serial number is already active in the system.')
+      alert('Error: This IMEI/Serial number is already active in the system. Changes rolled back.')
     } else {
-      alert('Database Error: ' + err.message)
+      alert('Database Error (Rolled back successfully): ' + (err.message || err))
     }
   } finally {
     loading.value = false

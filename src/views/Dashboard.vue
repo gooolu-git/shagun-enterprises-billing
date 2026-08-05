@@ -237,15 +237,12 @@ async function fetchDashboardStats() {
   loading.value = true
   try {
     const today = getLocalDateString(new Date())
-    const startOfToday = new Date(`${today}T00:00:00`).toISOString()
-    const endOfToday = new Date(`${today}T23:59:59.999`).toISOString()
 
     // 1. TOTAL SALES COUNT: Items created in sales table today
     const { count: salesCount, error: salesError } = await supabase
       .from('sales')
       .select('id', { count: 'exact', head: true })
-      .gte('created_at', startOfToday)
-      .lte('created_at', endOfToday)
+      .eq('sale_date', today)
       .eq('status', 'active')
 
     dailySalesCount.value = salesError ? 0 : (salesCount || 0)
@@ -254,8 +251,7 @@ async function fetchDashboardStats() {
     const { data: todayPayments, error: paymentsError } = await supabase
       .from('payments')
       .select('amount_paid')
-      .gte('created_at', startOfToday)
-      .lte('created_at', endOfToday)
+      .eq('sale_date', today)
 
     if (!paymentsError && todayPayments) {
       dailyRevenue.value = todayPayments.reduce((sum, p) => sum + Number(p.amount_paid || 0), 0)
