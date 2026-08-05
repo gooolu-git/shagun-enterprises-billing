@@ -413,6 +413,6 @@ const getWhatsAppLink = (sale) => {
   message += `Shagun Enterprises\n`
   message += `Owner Phone No: 9097625322`
 
-  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
+  return `whatsapp.business://send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`
 }
 </script>
