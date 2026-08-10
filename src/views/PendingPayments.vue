@@ -412,7 +412,7 @@ const getWhatsAppLink = (sale) => {
   // Footer Signature with Business Name & Owner Phone No
   message += `Shagun Enterprises\n`
   message += `Phone No: 9097625322`
-
+  //Redirection to whatsapp
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
 }
 </script>
