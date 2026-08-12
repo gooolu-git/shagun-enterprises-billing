@@ -364,7 +364,7 @@ const avatarSvg = computed(() => {
   return avatar.toString()
 })
 
-// Helper method to build a bilingual WhatsApp URL with essential clean emojis only
+// Helper method to build a bilingual WhatsApp URL with standard wa.me redirect
 const getWhatsAppLink = (sale) => {
   if (!customer.value) return '#'
 
@@ -411,8 +411,8 @@ const getWhatsAppLink = (sale) => {
 
   // Footer Signature with Business Name & Owner Phone No
   message += `Shagun Enterprises\n`
-  message += `Owner Phone No: 9097625322`
+  message += `Phone No: 9097625322`
 
-  return `whatsapp.business://send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
 }
 </script>
