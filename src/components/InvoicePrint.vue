@@ -36,7 +36,7 @@
             <font-awesome-icon icon="fa-solid fa-phone" class="text-neutral-400" />
             Contact: 9097625322 , 9110908760
           </p>
-          <!-- Added GSTIN Details -->
+          <!-- GSTIN Details -->
           <p class="text-xs font-semibold text-neutral-700 font-mono mt-1 flex items-center gap-1.5">
             <font-awesome-icon icon="fa-solid fa-building-columns" class="text-neutral-400" />
             GSTIN: 10DJTPK6228K1ZW
@@ -144,6 +144,18 @@
             </span>
             <span class="font-semibold">₹{{ Number(sale?.paid_amount || 0).toLocaleString('en-IN') }}</span>
           </div>
+
+          <!-- Payment Mode Field -->
+          <div class="flex justify-between text-neutral-600">
+            <span class="flex items-center gap-1.5">
+              <font-awesome-icon icon="fa-solid fa-credit-card" class="text-neutral-400 text-xs" />
+              Payment Mode:
+            </span>
+            <span class="font-semibold uppercase text-neutral-900">
+              {{ displayPaymentMethod }}
+            </span>
+          </div>
+
           <div class="flex justify-between text-neutral-900 font-bold border-t border-neutral-200 pt-2 text-base">
             <span class="flex items-center gap-1.5">
               <font-awesome-icon icon="fa-solid fa-wallet" class="text-xs" :class="(sale?.remaining_amount || 0) > 0 ? 'text-amber-600' : 'text-emerald-600'" />
@@ -173,8 +185,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import QRCode from 'qrcode'
+import { supabase } from '@/lib/supabase'
 
 const props = defineProps({
   sale: { type: Object, required: true },
@@ -183,6 +196,31 @@ const props = defineProps({
 })
 
 const qrCanvas = ref(null)
+const fetchedPaymentMethod = ref(null)
+
+// Fetch payment method from the payments table linked via sale_id
+async function fetchPaymentMethod() {
+  if (!props.sale?.id) return
+  try {
+    const { data, error } = await supabase
+      .from('payments')
+      .select('payment_method')
+      .eq('sale_id', props.sale.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+
+    if (!error && data && data.length > 0) {
+      fetchedPaymentMethod.value = data[0].payment_method
+    }
+  } catch (err) {
+    console.error('Error fetching payment method from DB:', err)
+  }
+}
+
+// Compute the final payment method string to show
+const displayPaymentMethod = computed(() => {
+  return props.sale?.payment_method || props.sale?.payment_mode || fetchedPaymentMethod.value || 'cash'
+})
 
 async function generateQRCode() {
   await nextTick()
@@ -213,12 +251,14 @@ function printInvoice() {
 
 onMounted(() => {
   generateQRCode()
+  fetchPaymentMethod()
 })
 
 watch(
   () => props.sale,
   () => {
     generateQRCode()
+    fetchPaymentMethod()
   },
   { deep: true }
 )
