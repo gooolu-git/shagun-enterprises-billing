@@ -1,26 +1,48 @@
 <template>
   <div class="space-y-6 p-1 sm:p-2 pb-12">
     <!-- Greeting & Action Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-xs">
+    <div
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-xs">
       <div>
         <h1 class="text-xl sm:text-2xl font-extrabold text-neutral-900 tracking-tight">Business Analytics</h1>
-        <p class="text-xs sm:text-sm text-neutral-500 mt-0.5">Deep-dive graphs, payment realizations, and category contributions</p>
+        <p class="text-xs sm:text-sm text-neutral-500 mt-0.5">Deep-dive graphs, payment realizations, and category
+          contributions</p>
       </div>
 
-      <button
-        @click="fetchAnalyticsData"
-        :disabled="loading"
-        class="px-3.5 py-2 border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer"
-      >
-        <font-awesome-icon icon="fa-solid fa-arrows-rotate" :class="{ 'animate-spin': loading }" />
-        Refresh Graphs
-      </button>
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Month & Year Report Selector Controls -->
+        <div class="flex items-center gap-1.5 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-1.5 shadow-xs">
+          <select v-model="selectedMonth"
+            class="bg-transparent text-xs sm:text-sm font-semibold text-neutral-800 outline-none cursor-pointer">
+            <option v-for="m in 12" :key="m" :value="m">{{ new Date(0, m - 1).toLocaleString('default', {
+              month: 'short'
+              }) }}</option>
+          </select>
+          <select v-model="selectedYear"
+            class="bg-transparent text-xs sm:text-sm font-semibold text-neutral-800 outline-none cursor-pointer">
+            <option v-for="y in availableYears" :key="y" :value="y">{{ y }}</option>
+          </select>
+          <button @click="triggerMonthlyReport" :disabled="loadingReport"
+            class="ml-2 px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shadow-xs disabled:opacity-50 cursor-pointer"
+            title="Download PDF Financial Report">
+            <font-awesome-icon icon="fa-solid fa-file-arrow-down" :class="{ 'animate-bounce': loadingReport }" />
+            {{ loadingReport ? 'Downloading...' : 'Download Report' }}
+          </button>
+        </div>
+
+        <button @click="fetchAnalyticsData" :disabled="loading"
+          class="px-3.5 py-2 border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer">
+          <font-awesome-icon icon="fa-solid fa-arrows-rotate" :class="{ 'animate-spin': loading }" />
+          Refresh
+        </button>
+      </div>
     </div>
 
     <!-- Charts Grid (Row 1: Main Trends & Category Share) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Chart 1: Revenue vs Ledger Realization -->
-      <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+      <div
+        class="lg:col-span-2 bg-white p-6 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
         <div class="mb-6">
           <h2 class="text-base font-bold text-neutral-900">Billed Revenue vs Realized Cash</h2>
           <p class="text-xs text-neutral-500">Monthly comparison of total invoices against ledger payment receipts</p>
@@ -41,7 +63,8 @@
           <p class="text-xs text-neutral-500">Gross revenue generated per category</p>
         </div>
         <div class="h-60 relative flex items-center justify-center my-2">
-          <Doughnut v-if="!loading && chartDataCategory.labels.length" :data="chartDataCategory" :options="doughnutOptions" />
+          <Doughnut v-if="!loading && chartDataCategory.labels.length" :data="chartDataCategory"
+            :options="doughnutOptions" />
           <div v-else class="h-full flex items-center justify-center text-xs text-neutral-400">
             <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin text-xl mr-2" />
             Generating category breakdown...
@@ -59,7 +82,8 @@
           <p class="text-xs text-neutral-500">Volume distribution across cash, UPI, cards, and bank transfers</p>
         </div>
         <div class="h-64 relative flex items-center justify-center my-2">
-          <Doughnut v-if="!loading && chartDataMethods.labels.length" :data="chartDataMethods" :options="doughnutOptions" />
+          <Doughnut v-if="!loading && chartDataMethods.labels.length" :data="chartDataMethods"
+            :options="doughnutOptions" />
           <div v-else class="h-full flex items-center justify-center text-xs text-neutral-400">
             <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin text-xl mr-2" />
             Loading payment methods...
@@ -74,7 +98,8 @@
           <p class="text-xs text-neutral-500">Distribution of active, returned, and cancelled inventory entries</p>
         </div>
         <div class="h-64 relative">
-          <Bar v-if="!loading && chartDataStatus.labels.length" :data="chartDataStatus" :options="horizontalBarOptions" />
+          <Bar v-if="!loading && chartDataStatus.labels.length" :data="chartDataStatus"
+            :options="horizontalBarOptions" />
           <div v-else class="h-full flex items-center justify-center text-xs text-neutral-400">
             <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin text-xl mr-2" />
             Loading status metrics...
@@ -114,7 +139,8 @@
           <div>
             <p class="font-semibold text-neutral-900">Average Ticket Size</p>
             <p class="text-neutral-600 mt-1">
-              Your average order value per item sold is <strong>₹{{ averageOrderValue.toLocaleString('en-IN') }}</strong>.
+              Your average order value per item sold is <strong>₹{{ averageOrderValue.toLocaleString('en-IN')
+                }}</strong>.
             </p>
           </div>
         </div>
@@ -144,6 +170,14 @@ import { Bar, Doughnut } from 'vue-chartjs'
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend)
 
 const loading = ref(false)
+const loadingReport = ref(false)
+
+// Month & Year state for report generation default to current month/year
+const currentDate = new Date()
+const selectedMonth = ref(currentDate.getMonth() + 1)
+const selectedYear = ref(currentDate.getFullYear())
+const availableYears = [2024, 2025, 2026, 2027]
+
 const grandTotalRevenue = ref(0)
 const grandTotalCollected = ref(0)
 const totalItemsSold = ref(0)
@@ -200,6 +234,58 @@ const doughnutOptions = {
       position: 'bottom',
       labels: { font: { family: 'inherit', size: 12 }, usePointStyle: true, pointStyle: 'circle', boxWidth: 8 }
     }
+  }
+}
+
+async function triggerMonthlyReport() {
+  try {
+    loadingReport.value = true
+
+    // Get the current session token to authenticate the request
+    const { data: sessionData } = await supabase.auth.getSession()
+    const accessToken = sessionData?.session?.access_token
+
+    if (!accessToken) {
+      throw new Error('User not authenticated. Please log in again.')
+    }
+
+    // Call the Edge Function endpoint directly using fetch
+    const functionUrl = 'https://cflbyxvrqvlmsmjlcxqv.supabase.co/functions/v1/send-monthly-report'
+    
+    const response = await fetch(functionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+        'apikey': 'YOUR_SUPABASE_ANON_KEY' // Or import from your supabase client config if needed
+      },
+      body: JSON.stringify({ 
+        month: selectedMonth.value, 
+        year: selectedYear.value 
+      })
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Edge Function error (${response.status}): ${errorText}`)
+    }
+
+    // Receive raw PDF blob directly
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `Shagun_Report_${selectedMonth.value}_${selectedYear.value}.pdf`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+
+  } catch (err) {
+    console.error('Report Generation Error:', err)
+    alert('Failed to download report: ' + (err.message || err))
+  } finally {
+    loadingReport.value = false
   }
 }
 
@@ -292,7 +378,6 @@ async function fetchAnalyticsData() {
         }
       ]
 
-      // Payment Methods Distribution Chart Data
       const methodMap = { cash: 0, upi: 0, card: 0, bank_transfer: 0 }
       if (payments) {
         payments.forEach(p => {
@@ -310,7 +395,6 @@ async function fetchAnalyticsData() {
         }
       ]
 
-      // Status Overview Bar Chart Data
       chartDataStatus.labels = ['Active', 'Returned', 'Cancelled']
       chartDataStatus.datasets = [
         {
